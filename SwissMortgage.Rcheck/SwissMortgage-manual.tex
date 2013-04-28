@@ -1,0 +1,367 @@
+\nonstopmode{}
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\usepackage[utf8,latin1]{inputenc}
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `SwissMortgage'}}
+\par\bigskip{\large \today}
+\end{center}
+\begin{description}
+\raggedright{}
+\item[Title]\AsIs{Tools for mortgage calculations in Switzerland}
+\item[Description]\AsIs{}
+\item[Version]\AsIs{0.1}
+\item[Author]\AsIs{Richard Nixon }\email{richard2718@gmail.com}\AsIs{}
+\item[Maintainer]\AsIs{Richard Nixon }\email{richard2718@gmail.com}\AsIs{}
+\item[Depends]\AsIs{R (>= 2.15.1), ggplot2, plyr}
+\item[License]\AsIs{GPL-2}
+\item[Collate]\AsIs{'interest.R'}
+\end{description}
+\Rdcontents{\R{} topics documented:}
+\inputencoding{utf8}
+\HeaderA{amortization}{Find the value of one amortization payment}{amortization}
+%
+\begin{Description}\relax
+This function finds the value of one amortization
+payment, given the current total debt, the current annual
+interest rate and the period over which to pay the debt.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  amortization(debt = 100, rate = 1, period = 5)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{debt}] Current debt
+
+\item[\code{rate}] Annual percentage rate
+
+\item[\code{period}] Period of amortization repayments in years
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+The amortizaiton for one payment
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+amortization(debt = 1000, rate = 1, period = 5)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{fix.rate}{Find the fixed interest rates over given future period}{fix.rate}
+%
+\begin{Description}\relax
+This function predicts the fixed interest rates for a
+future time, given the fixed rates now, and the flexibles
+rates in the future
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  fix.rate(start.time = 0, period = 5,
+    current.fix.rates = NULL, flex.rate = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{start.time}] the time in years when the fixed rate
+mortgage will start
+
+\item[\code{period}] the fixed period for the mortgage
+
+\item[\code{current.fix.rates}] vector of length n giving the
+current fixed rate mortges for a fixed period of 1 to n
+years
+
+\item[\code{flex.rate}] object from \code{\LinkA{flex.rate}{flex.rate}}
+giving the flexible rates. The period of this must be at
+least as long as \code{start.time}
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+The fixed interest rate
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+flexRate <- flex.rate()
+current.fix.rates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
+fix.rate(start.time = 0, period = 5, current.fix.rates = current.fix.rates, flex.rate = flexRate)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{flex.rate}{Find the flexible interest rates over given future period}{flex.rate}
+%
+\begin{Description}\relax
+This function predicts the flexible interest rates for a
+given period.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  flex.rate(current.rate = 1, final.rate = 5, period = 10,
+    extend.period = 50)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{current.rate}] current interest rate
+
+\item[\code{final.rate}] final interest rate
+
+\item[\code{period}] period in years over which the rate will
+change
+
+\item[\code{extend.period}] after the period has ended keep at
+the final rate for this long
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+A data frame with elements \begin{ldescription}
+\item[\code{month}] time in months
+\item[\code{rate}] interest rate that month
+\end{ldescription}
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+flex.rate(current.rate = 1, final.rate = 5, period = 10)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{interest.pay}{Find the payments over time for a mortgage}{interest.pay}
+%
+\begin{Description}\relax
+This function finds the payment each month for a fixed or
+amortization mortgage. This is also broken down by how
+much is a repayment and how much is interest.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  interest.pay(debt = 100, rate = 1, period = 1,
+    interest.only = TRUE, amortization.period = 20)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{debt}] the amount borrowed
+
+\item[\code{rate}] either a single value giving the annual
+percentage rate, or a vector of length \code{12*period}
+giving the interest rate by month
+
+\item[\code{period}] period (years) to calculate mortgage for
+
+\item[\code{interest.only}] logical. If TRUE perform
+calculaitons for an interest only mortgage, if FALSE then
+amoritize
+
+\item[\code{amortization.period}] the repayment period of an
+amortization mortgage
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+A data frame with elements \begin{ldescription}
+\item[\code{month}] time in months
+\item[\code{interest}] interest that month
+\item[\code{repayment}] repayment that month\item[\code{payment}] sum
+of interest and repayment
+\end{ldescription}
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+interest.pay(debt = 1000, rate = 1, period = 5, interest.only = FALSE, amortization.period = 20)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{plan.pay}{Find the payments over time for a set of mortgages}{plan.pay}
+%
+\begin{Description}\relax
+This function finds the payment each month for a set of
+fixed or amortization mortgages. This is broken down by
+how much is a repayment and how much is interest, for
+each mortgage
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  plan.pay(plan)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{plan}] list giving details of a set of mortgages,
+see Details
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Details}\relax
+The set of mortages is defined by the list \code{plan}.
+Each element of ths list is a named list of lists
+defining a set of subsequent mortgages. The bottom level
+list has elements needed for \code{\LinkA{interest.pay}{interest.pay}}
+\end{Details}
+%
+\begin{Value}
+A long format data frame with one row per mortgage per
+month with elements \begin{ldescription}
+\item[\code{month}] time in months
+\item[\code{mortgage}] factor giving the name of the mortgage,
+taken from the names in \code{plan}
+\item[\code{interest}] interest that month and mortgage
+\item[\code{repayment}] repayment that month and mortgage
+\item[\code{payment}] sum of interest and repayment for that
+month and mortgage
+\end{ldescription}
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+plan <- list(
+ "Fix1" = list(
+   list(debt = 1000, rate = 1, period = 5, interest.only = TRUE, amortization.period = NULL),
+   list(debt = 1000, rate = 2, period = 3, interest.only = TRUE, amortization.period = NULL)
+ ),
+ "Amortization" = list(
+   list(debt = 1000, rate = 2, period = 8, interest.only = FALSE, amortization.period = 20)
+ )
+)
+
+plan.pay(plan)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{ribbon.plot.pay}{Ribbon plot for payments}{ribbon.plot.pay}
+%
+\begin{Description}\relax
+This function
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  ribbon.plot.pay(pay, y = "payment", xmax = NULL,
+    ymax = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{pay}] an object from plan.pay
+
+\item[\code{y}] y value to plot, either "payment", "interest",
+"repayment"
+
+\item[\code{xmax}] optional x-axis upper limit
+
+\item[\code{ymax}] optional y-axis upper limit
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+A ggplot2 ribbon plot
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+plan <- list(
+ "Fix1" = list(
+   list(debt = 1000, rate = 1, period = 5, interest.only = TRUE, amortization.period = NULL),
+   list(debt = 2000, rate = 2, period = 3, interest.only = TRUE, amortization.period = NULL)
+ ),
+ "Amortization" = list(
+   list(debt = 1000, rate = 2, period = 8, interest.only = FALSE, amortization.period = 20)
+ )
+)
+
+plan <- plan.pay(plan)
+ribbon.plot.pay(plan)
+\end{ExampleCode}
+\end{Examples}
+\inputencoding{utf8}
+\HeaderA{shinyPlan2plan}{Convert a shinyPlan list to a plan list}{shinyPlan2plan}
+%
+\begin{Description}\relax
+This function converts a shinyPlan list to a more general
+plan list which can be processed by
+\code{\LinkA{plan.pay}{plan.pay}}
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+  shinyPlan2plan(shinyPlan, currentFixRates, flexRate,
+    timeHorizon = NULL)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{shinyPlan}] a shiny plan list
+
+\item[\code{currentFixRates}] vector of length n giving the
+current fixed rate mortges for a fixed period of 1 to n
+years
+
+\item[\code{flexRate}] object from \code{\LinkA{flex.rate}{flex.rate}}
+giving the flexible rates.
+
+\item[\code{timeHorizon}] period over which the final set of
+morgages perdict over. Default is NULL, in which case it
+is the longest single period of the shinyPlan set
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Details}\relax
+shinyPlan is a list of named lists with elements
+\begin{itemize}
+ \item debtThe amount borrowed
+\item fix.rateTRUE for a fixed rate of interest, FALSE
+for an interest rate that can change over time. These are
+calculated from \code{current.fix.rate} and
+\code{flex.rate} \item periodPeriod of mortgage in
+years \item interest.onlyIf TRUE then only interest is
+paid on the debt, if FALSE then the debt is amortized
+\item amortization.periodif \code{interest.only = TRUE}
+then this gives the amortization period in years
+\item renewThe period to keep renewing the mortgage
+for. 0 means the mortgage is not renewed 
+\end{itemize}
+
+\end{Details}
+%
+\begin{Value}
+a plan list. See \code{\LinkA{plan.pay}{plan.pay}}
+\end{Value}
+%
+\begin{Examples}
+\begin{ExampleCode}
+shinyPlan <- list(
+   "Fix1" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 5),
+   "Fix2" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 0),
+   "Amm1" = list(debt = 200000, fix.rate = FALSE, period = 10, interest.only = FALSE, amortization.period = 20, renew = 0)
+)
+currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
+flexRate <- flex.rate()
+shinyPlan2plan(shinyPlan = shinyPlan, currentFixRates = currentFixRates,  flexRate = flexRate, timeHorizon = 10)
+\end{ExampleCode}
+\end{Examples}
+\printindex{}
+\end{document}

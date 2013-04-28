@@ -1,0 +1,7 @@
+export(amortization)
+export(fix.rate)
+export(flex.rate)
+export(interest.pay)
+export(plan.pay)
+export(ribbon.plot.pay)
+export(shinyPlan2plan)

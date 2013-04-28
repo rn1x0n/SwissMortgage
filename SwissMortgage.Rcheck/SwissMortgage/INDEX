@@ -1,0 +1,10 @@
+amortization            Find the value of one amortization payment
+fix.rate                Find the fixed interest rates over given future
+                        period
+flex.rate               Find the flexible interest rates over given
+                        future period
+interest.pay            Find the payments over time for a mortgage
+plan.pay                Find the payments over time for a set of
+                        mortgages
+ribbon.plot.pay         Ribbon plot for payments
+shinyPlan2plan          Convert a shinyPlan list to a plan list
