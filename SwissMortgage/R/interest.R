@@ -179,7 +179,7 @@ shinyPlan2plan <- function(
       
       if(!shinyPlan[[name]]$interest.only){
         this.pay <- interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = amortization.period)
-        debt <- debt - sum(this.pay$repayment)
+        debt <- debt - sum(this.pay$amortization)
         amortization.period <- amortization.period - period
       } 
       
@@ -220,7 +220,7 @@ amortization <- function(
 #' Find the payments over time for a mortgage
 #'
 #' This function finds the payment each month for a fixed or amortization
-#' mortgage. This is also broken down by how much is a repayment and how
+#' mortgage. This is also broken down by how much is a  amortization repayment and how
 #' much is interest. 
 #'
 #' @param   debt    the amount borrowed 
@@ -231,8 +231,8 @@ amortization <- function(
 #' @return  A data frame with elements
 #' \item{month}{time in months}
 #' \item{interest}{interest that month}
-#' \item{repayment}{repayment that month}
-#' \item{payment}{sum of interest and repayment}
+#' \item{amortization}{amortization repayment that month}
+#' \item{payment}{sum of interest and amortization repayment}
 #' @export
 #' @examples
 #' interest.pay(debt = 1000, rate = 1, period = 5, interest.only = FALSE, amortization.period = 20)
@@ -255,13 +255,13 @@ interest.pay <- function(
   # Find payment each month
   if(interest.only){
     interest <- payment <- debt * rate/12/100
-    repayment <- rep(0, ln)
+    amortization <- rep(0, ln)
   } else {
-    payment <- interest <- current.debt <- repayment <- rep(NA, ln)
+    payment <- interest <- current.debt <- amortization <- rep(NA, ln)
     payment[1] <- amortization(debt = debt, rate = rate[1], period = amortization.period)
     interest[1] <- debt * rate[1]/12/100
     current.debt[1] <- debt + interest[1] - payment[1]
-    repayment[1] <- payment[1] - interest[1]
+    amortization[1] <- payment[1] - interest[1]
     
     for(i in 2:ln){
       payment[i] <- amortization(
@@ -271,7 +271,7 @@ interest.pay <- function(
       
       interest[i] <- current.debt[i-1] * rate[i]/12/100
       current.debt[i] <- current.debt[i-1] + interest[i] - payment[i]
-      repayment[i] <- payment[i] - interest[i]
+      amortization[i] <- payment[i] - interest[i]
     }
     
   }
@@ -281,7 +281,7 @@ interest.pay <- function(
     data.frame(
       month = month,
       interest = interest,
-      repayment = repayment,
+      amortization = amortization,
       payment = payment
     )
   )
@@ -292,7 +292,7 @@ interest.pay <- function(
 #' Find the payments over time for a set of mortgages
 #'
 #' This function finds the payment each month for a set of fixed or amortization
-#' mortgages. This is broken down by how much is a repayment and how
+#' mortgages. This is broken down by how much is a amortization repayment and how
 #' much is interest, for each mortgage 
 #'
 #' @param   plan    list giving details of a set of mortgages, see Details 
@@ -302,9 +302,9 @@ interest.pay <- function(
 #' @return  A long format data frame with one row per mortgage per month with elements
 #' \item{month}{time in months}
 #' \item{mortgage}{factor giving the name of the mortgage, taken from the names in \code{plan}}
-#' \item{interest}{interest that month and mortgage}
-#' \item{repayment}{repayment that month and mortgage}
-#' \item{payment}{sum of interest and repayment for that month and mortgage}
+#' \item{interest}{interest that month}
+#' \item{amortization}{amortization repayment that month}
+#' \item{payment}{sum of interest and repayment for that month}
 #' @export
 #' @examples
 #' plan <- list(
@@ -366,10 +366,10 @@ plan.pay <- function(
 #====================================================================
 #' Ribbon plot for payments
 #'
-#' This function  
+#' Ribbon ploy of payments 
 #'
 #' @param   pay    an object from plan.pay 
-#' @param   y      y value to plot, either "payment", "interest", "repayment"
+#' @param   y      y value to plot, either "payment", "interest", "amortization"
 #' @param   xmax   optional x-axis upper limit
 #' @param   ymax   optional y-axis upper limit
 #' @return  A ggplot2 ribbon plot
@@ -397,7 +397,7 @@ ribbon.plot.pay <- function(
   require(plyr)
   
   # Check y value
-  if(is.na(match(y, c("payment", "interest", "repayment")))) stop('y must be one of "payment", "interest", or "repayment"')
+  if(is.na(match(y, c("payment", "interest", "amortization")))) stop('y must be one of "payment", "interest", or "amortization"')
   # Add in extra row to make steps in plot
   pay2 <- ddply(pay, "month", function(x){
     x0 <- x
@@ -415,6 +415,67 @@ ribbon.plot.pay <- function(
     geom_ribbon(aes_string(ymin = "0", ymax = y), position = "stack") +
     ylab(paste("Monthly", y)) +
     scale_fill_discrete(name = "Mortgage")
+  
+  if(!is.null(xmax) & is.null(ymax)){
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05))
+  }
+  
+  if(is.null(xmax) & !is.null(ymax)){
+    p <- p + coord_cartesian(ylim = c(0, ymax*1.05))
+  }
+  
+  if(!is.null(xmax) & !is.null(ymax)){
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05), ylim = c(0, ymax*1.05))
+  }
+  
+  return(p)
+  
+}
+
+#====================================================================
+#' Line plot for payments
+#'
+#' Line ploy of payments 
+#'
+#' @param   pay    an object from plan.pay 
+#' @param   y      y value to plot, either "payment", "interest", "amortization"
+#' @param   xmax   optional x-axis upper limit
+#' @param   ymax   optional y-axis upper limit
+#' @return  A ggplot2 line plot
+#' @export
+#' @examples
+#' plan <- list(
+#'  "Fix1" = list(
+#'    list(debt = 1000, rate = 1, period = 5, interest.only = TRUE, amortization.period = NULL),
+#'    list(debt = 1000, rate = 2, period = 3, interest.only = TRUE, amortization.period = NULL)
+#'  ),
+#'  "Amortization" = list(
+#'    list(debt = 1000, rate = 2, period = 8, interest.only = FALSE, amortization.period = 20)
+#'  )
+#' )
+#' 
+#' plan <- plan.pay(plan)
+#' line.plot.pay(plan)
+line.plot.pay <- function(
+  pay, 
+  y = "payment",
+  xmax = NULL,
+  ymax = NULL
+){
+  require(ggplot2)
+  require(plyr)
+  
+  # Check y value
+  if(is.na(match(y, c("payment", "interest", "amortization")))) stop('y must be one of "payment", "interest", or "amortization"')
+ 
+  pay$Year <- pay$month/12
+  plotdata <- pay
+  
+  p <- ggplot(plotdata,  aes_string(x = "Year", y = y, group = "mortgage", colour= "mortgage")) +
+    geom_step(direction = "vh", size = 1) +
+    geom_step(data = subset(pay, subset = mortgage == "Total"), direction = "vh", size = 2) +
+    ylab(paste("Monthly", y)) +
+    scale_colour_discrete(name = "Mortgage") 
   
   if(!is.null(xmax) & is.null(ymax)){
     p <- p + coord_cartesian(xlim = c(0, xmax*1.05))

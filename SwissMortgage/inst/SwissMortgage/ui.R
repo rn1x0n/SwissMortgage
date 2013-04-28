@@ -10,6 +10,8 @@ shinyUI(pageWithSidebar(
     selectInput("numMortgages", "Number of mortgages:", choices = c(1,2,3,4), selected = 2),
     sliderInput("timeHorizon", "Years to predict mortgage for:", min = 1, max = 10, value = 10),
     
+    h3("Mortgage Details"), 
+    
     # First mortgage  
     h4("Mortgage 1"),  
     textInput("name1", "Name of mortgage:", "Amortization"),   
@@ -26,6 +28,7 @@ shinyUI(pageWithSidebar(
     # Second mortgage
     conditionalPanel(
       condition = "input.numMortgages >= 2",
+      br(),
       h4("Mortgage 2"),
       textInput("name2", "Name of mortgage:", "Fix 1"),
       checkboxInput("fixRate2", "Fixed rate", TRUE),
@@ -37,6 +40,7 @@ shinyUI(pageWithSidebar(
     # Third mortgage
     conditionalPanel(
       condition = "input.numMortgages >= 3",
+      br(),
       h4("Mortgage 3"),
       textInput("name3", "Name of mortgage:", "Fix 2"),
       checkboxInput("fixRate3", "Fixed rate", TRUE),
@@ -44,10 +48,11 @@ shinyUI(pageWithSidebar(
       sliderInput("period3", "Period (years) for mortgage:", min = 0, max = 10, value = 5, step = 1),
       sliderInput("renew3", "Period for renewed mortgage (0 = not renew):", min = 0, max = 10, value = 5, step = 1)
     ),
-    
+      
     # Fourth mortgage
     conditionalPanel(
       condition = "input.numMortgages >= 4",
+      br(),
       h4("Mortgage 4"),
       textInput("name4", "Name of mortgage:", "Fix 3"),
       checkboxInput("fixRate4", "Fixed rate", TRUE),
@@ -57,8 +62,14 @@ shinyUI(pageWithSidebar(
     ),
     
     # Graph options
+    br(),
     h3("Graph options"),
     selectInput("graphType", "Type of graph:", choices = c("Ribbon graph", "Line graph"), selected = "Ribbon graph"),
+    
+    selectInput("yaxis", "What to plot on the y-axis:", choices = c("payment", "interest", "amortization"), selected = "payment"),
+    helpText("payments plot the total monthy payment, this is the sum of the interest and the 
+             amortization repayment."),
+       
     checkboxInput("ylim2Fix", "Fix upper limit on y-axis:", FALSE),
     conditionalPanel(
       condition = "input.ylim2Fix == true",
@@ -67,6 +78,8 @@ shinyUI(pageWithSidebar(
     
     
     # Forcast for baseline interest rates  
+    br(),
+    h3("Interest rate assumptions"),
     h4("Forcast for baseline interest rates"),
     helpText("Input the current baseline rate, and what you think the rate wil be in the future.
               This is the rate used for non-fixed rate mortgages. The future fixed rates are changed
@@ -107,7 +120,7 @@ shinyUI(pageWithSidebar(
       tabPanel("Interest rate assumptions",
                h4("Fixed interst rates for each period"),
                plotOutput("currentRatePlot"), 
-               h4("Flexible basline interst rates overtime"),
+               h4("Flexible baseline interst rates overtime"),
                plotOutput("flexRatePlot") 
       )
     )  

@@ -4,6 +4,7 @@ rm(list = ls())
 library(ggplot2)
 library(shiny)
 source("SwissMortgage/R/interest.R")
+
 runApp("SwissMortgage/inst/SwissMortgage")
 
 #library(SwissMortgage)
@@ -79,6 +80,7 @@ summary <- ddply(payments, "mortgage", function(x){
 names(summary) <- c("Mortgage", "Total Payments")
 
 ribbon.plot.pay(payments)
+line.plot.pay(payments)
 
 # Add in total
 # total <- ddply(payments, "month", function(x){apply(x[, names(interest.pay())[-1]], 2, sum, na.rm = TRUE)})

@@ -60,38 +60,34 @@ shinyServer(function(input, output){
   # Plot of payments
   size <- 15 
   
+  ymax <- function(){
+    if(input$ylim2Fix){
+      return(input$ylim2)
+    } else {
+     return(NULL)
+    }
+  }
+  
+  
   interestPlot <-   reactive({
     
-    if(input$graphType == "Line graph"){
-      
-      plotdata <- payments()
-      
-      ylim2 <- ifelse(input$ylim2Fix, input$ylim2, max(plotdata$payment))
-      
-      p <- ggplot(plotdata, aes(x = Year, y = payment, group = mortgage, colour = mortgage)) +
-        geom_step(direction = "vh", size = 1) +
-        geom_step(data = subset(payments(), subset = mortgage == "Total"), direction = "vh", size = 2) +
-        ylab("Monthly payment") +
-        scale_colour_discrete(name = "Mortgage") +
-        coord_cartesian(xlim = c(0, input$timeHorizon*1.05), ylim = c(0, ylim2*1.05))  
+    if(input$graphType == "Line graph"){    
+      p <-  line.plot.pay(
+        payments(), 
+        y = input$yaxis,
+        xmax = input$timeHorizon,
+        ymax = ymax()
+      )
       print(p)  
     }
     
-    if(input$graphType == "Ribbon graph"){
-      
-      if(input$ylim2Fix){
-        ymax <- input$ylim2
-      } else {
-        ymax <- NULL
-      }
-      
+    if(input$graphType == "Ribbon graph"){    
       p <-  ribbon.plot.pay(
         payments(), 
-        y = "payment",
+        y = input$yaxis,
         xmax = input$timeHorizon,
-        ymax = ymax
-      )
-      
+        ymax = ymax()
+      )    
       print(p) 
     }
   })
@@ -137,7 +133,7 @@ shinyServer(function(input, output){
     summary
   })
   
-  output$debug <- renderText({input$ylim2Fix})
+  output$debug <- renderText({ymax()})
   
   # Goolge analytics
   output$googleAnalytics <- renderText({
