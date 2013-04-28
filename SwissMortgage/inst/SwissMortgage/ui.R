@@ -67,8 +67,8 @@ shinyUI(pageWithSidebar(
     selectInput("graphType", "Type of graph:", choices = c("Ribbon graph", "Line graph"), selected = "Ribbon graph"),
     
     selectInput("yaxis", "What to plot on the y-axis:", choices = c("payment", "interest", "amortization"), selected = "payment"),
-    helpText("payments plot the total monthy payment, this is the sum of the interest and the 
-             amortization repayment."),
+    helpText('"payments" plot the total monthy payment, this is the sum of the "interest" and the 
+             "amortization" repayment.'),
        
     checkboxInput("ylim2Fix", "Fix upper limit on y-axis:", FALSE),
     conditionalPanel(
@@ -111,17 +111,22 @@ shinyUI(pageWithSidebar(
   mainPanel(
     tabsetPanel(
       tabPanel("Results", 
-#                plotOutput("interestPlot"), 
                plotOutput("interestPlot"), 
                tableOutput("summary"),
-               textOutput("debug"),
+               #textOutput("debug"),
+               #htmlOutput("summaryXtable"),
                htmlOutput("googleAnalytics")
                ), 
       tabPanel("Interest rate assumptions",
-               h4("Fixed interst rates for each period"),
+               h4("Fixed interest rates for each period"),
                plotOutput("currentRatePlot"), 
-               h4("Flexible baseline interst rates overtime"),
-               plotOutput("flexRatePlot") 
+               
+               h4("Flexible baseline interest rates over time"),
+               plotOutput("flexRatePlot") ,
+               
+               h4("Fixed interest rates by period over time"),
+               p("Put the two plots above together, and find the fixed interest rates that we assume will be offered in the future."),
+               plotOutput("fixRatesByStartTimePlot")
       )
     )  
   )

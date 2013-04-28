@@ -3,6 +3,7 @@
 rm(list = ls())
 library(ggplot2)
 library(shiny)
+library(xtable)
 source("SwissMortgage/R/interest.R")
 
 runApp("SwissMortgage/inst/SwissMortgage")
@@ -79,6 +80,8 @@ summary <- ddply(payments, "mortgage", function(x){
   data.frame(total = sum(x$payment))})
 names(summary) <- c("Mortgage", "Total Payments")
 
+print(xtable(summary), type = "html")
+
 ribbon.plot.pay(payments)
 line.plot.pay(payments)
 
@@ -123,4 +126,18 @@ ggplot(subset(flexRate, subset = Year <= 10), aes(x = Year, y = rate)) +
   theme(legend.title = element_text(size = size*0.8)) +
   theme(legend.text = element_text(size = size*0.8)) 
 
+fixRatesByStartTime <- lapply(0:9, function(x){
+data.frame(
+  year = x,
+  fix.rate.period = 1:10,
+  rate = fix.rate(start.time = x, period = 1:10, current.fix.rates = currentFixRates, flex.rate = flexRate)
+)})
+fixRatesByStartTime <- do.call("rbind", fixRatesByStartTime)
+fixRatesByStartTime$fix.rate.period <- as.factor(fixRatesByStartTime$fix.rate.period)
+levels(fixRatesByStartTime$fix.rate.period) <- rev(levels(fixRatesByStartTime$fix.rate.period))
+
+ggplot(fixRatesByStartTime, aes(x = year, y = rate, group = fix.rate.period, colour = fix.rate.period)) +
+  geom_line(size = 1) +
+  xlab("Year") + ylab("Interest rate (%)") +
+  scale_colour_discrete(name = "Fixed rate period (year)")
 

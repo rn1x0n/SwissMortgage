@@ -6,6 +6,7 @@ if(file.exists("/home/m1x0n/Projects/SwissMortgage/SwissMortgage/R/interest.R"))
 library(shiny)
 library(ggplot2)
 library(plyr)
+library(xtable)
 
 # Define server logic required to plot various variables against mpg
 shinyServer(function(input, output){
@@ -64,7 +65,7 @@ shinyServer(function(input, output){
     if(input$ylim2Fix){
       return(input$ylim2)
     } else {
-     return(NULL)
+      return(NULL)
     }
   }
   
@@ -123,16 +124,49 @@ shinyServer(function(input, output){
     print(p)
   })
   
-  # Output table
-  output$summary <- renderTable({
-    summary <- ddply(payments(), "mortgage", function(x){
-      x <- subset(x, subset = month <= 12*input$timeHorizon)
-      data.frame(total = round(sum(x$payment)/1000))
-    })
-    names(summary) <- c("Mortgage", "Total Payments (1000s)")
-    summary
+  # Plot of Fixed interest rates by period over time  
+  output$fixRatesByStartTimePlot <- renderPlot({
+  fixRatesByStartTime <- lapply(0:9, function(x){
+    data.frame(
+      year = x,
+      fix.rate.period = 1:10,
+      rate = fix.rate(start.time = x, period = 1:10, current.fix.rates = currentFixRates(), flex.rate = flexRate())
+    )})
+  fixRatesByStartTime <- do.call("rbind", fixRatesByStartTime)
+  fixRatesByStartTime$fix.rate.period <- as.factor(fixRatesByStartTime$fix.rate.period)
+  levels(fixRatesByStartTime$fix.rate.period) <- rev(levels(fixRatesByStartTime$fix.rate.period))
+  
+  p <- ggplot(fixRatesByStartTime, aes(x = year, y = rate, group = fix.rate.period, colour = fix.rate.period)) +
+    geom_line(size = 1) +
+    xlab("Year") + ylab("Interest rate (%)") +
+    scale_colour_discrete(name = "Fixed rate period (year)")
+  print(p)
   })
   
+  # Output table
+  output$summary <- renderTable(
+{
+  summary <- ddply(payments(), "mortgage", function(x){
+    x <- subset(x, subset = month <= 12*input$timeHorizon)
+    data.frame(total = round(sum(x[,input$yaxis])))
+  })
+  names(summary) <- c("Mortgage", paste("Total", input$yaxis))
+  summary
+}, 
+digits = 0, 
+include.rownames=FALSE, 
+format.args=list(big.mark = " ", decimal.mark = ".")
+  )
+  
+  #   output$summaryXtable <- renderText({
+  #     summary <- ddply(payments(), "mortgage", function(x){
+  #       x <- subset(x, subset = month <= 12*input$timeHorizon)
+  #       data.frame(total = round(sum(x$payment)/1000))
+  #     })
+  #     names(summary) <- c("Mortgage", "Total Payments (1000s)")
+  #     print(xtable(summary, digits = 0), type = "html", include.rownames=FALSE)
+  #   })
+  #    
   output$debug <- renderText({ymax()})
   
   # Goolge analytics
