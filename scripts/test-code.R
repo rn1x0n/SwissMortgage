@@ -10,6 +10,10 @@ runApp("SwissMortgage/inst/SwissMortgage")
 #R -e "shiny::runApp('/Users/Richard/Documents/R/Mortgage/SwissMortgage/inst/SwissMortgage')"
 
 #####################################################################
+# Copy server and ui to ShinyApps
+system("cp /home/m1x0n/Projects/SwissMortgage/SwissMortgage/inst/SwissMortgage/*.* /home/m1x0n/ShinyApps/SwissMortgage/", intern = TRUE)
+
+#####################################################################
 # Roxygen2 and build
 
 library(roxygen2)

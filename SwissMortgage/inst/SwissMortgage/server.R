@@ -1,5 +1,4 @@
 rm(list = ls())
-
 if(file.exists("/home/m1x0n/Projects/SwissMortgage/SwissMortgage/R/interest.R")){
   source("/home/m1x0n/Projects/SwissMortgage/SwissMortgage/R/interest.R")
 }
