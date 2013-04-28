@@ -1,7 +1,7 @@
 # TEST CODE
 
 rm(list = ls())
-setwd("/Users/Richard/Documents/R/SwissMortgage")
+#setwd("/Users/Richard/Documents/R/SwissMortgage")
 library(ggplot2)
 library(shiny)
 #library(SwissMortgage)
