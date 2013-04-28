@@ -150,7 +150,7 @@ shinyServer(function(input, output){
     x <- subset(x, subset = month <= 12*input$timeHorizon)
     data.frame(total = round(sum(x[,input$yaxis])))
   })
-  names(summary) <- c("Mortgage", paste("Total", input$yaxis))
+  names(summary) <- c("Mortgage", paste("Total", input$yaxis, "over", input$timeHorizon, "years"))
   summary
 }, 
 digits = 0, 
