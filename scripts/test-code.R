@@ -1,12 +1,12 @@
 # TEST CODE
 
 rm(list = ls())
-#setwd("/Users/Richard/Documents/R/SwissMortgage")
 library(ggplot2)
 library(shiny)
-#library(SwissMortgage)
 source("SwissMortgage/R/interest.R")
 runApp("SwissMortgage/inst/SwissMortgage")
+
+#library(SwissMortgage)
 #R -e "shiny::runApp('/Users/Richard/Documents/R/Mortgage/SwissMortgage/inst/SwissMortgage')"
 
 #####################################################################
