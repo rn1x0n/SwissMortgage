@@ -104,21 +104,26 @@ fix.rate <- function(
 #' @param flexRate           object from \code{\link{flex.rate}} giving the flexible rates. 
 #' @param timeHorizon        period over which the final set of morgages perdict over. Default is NULL, in which case it is the longest single period of the shinyPlan set
 #' @return a plan list. See \code{\link{plan.pay}}
-#' @details shinyPlan is a list of named lists with elements
+#' @details The set of mortages is defined by the list \code{ShinyPlan}. 
+#' Each element of ths list is a named list of lists defining a set of subsequent mortgages.
+#' The bottom level list has elements
 #' \itemize{
-#' \item{debt}{The amount borrowed}
+#' \item{debt}{The amount borrowed. For lists not the first in the mortgage set, this can be NA. In this case, the debt is calculated from the debt left by the previous mortgage. This allows for the debt to be adjusted after a mortgage period is over.}
 #' \item{fix.rate}{TRUE for a fixed rate of interest, FALSE for an interest rate that can change over time. These are calculated from \code{current.fix.rate} and \code{flex.rate}}
 #' \item{period}{Period of mortgage in years}
 #' \item{interest.only}{If TRUE then only interest is paid on the debt, if FALSE then the debt is amortized}
 #' \item{amortization.period}{if \code{interest.only = TRUE} then this gives the amortization period in years}
-#' \item{renew}{The period to keep renewing the mortgage for. 0 means the mortgage is not renewed}
 #' }
 #' @export
 #' @examples
 #' shinyPlan <- list(
-#'    "Fix1" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 5), 
-#'    "Fix2" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 0),
-#'    "Amm1" = list(debt = 200000, fix.rate = FALSE, period = 10, interest.only = FALSE, amortization.period = 20, renew = 0) 
+#'   "Amortization" = list(
+#'     list(debt = 1000, fix.rate = TRUE,  period = 8, interest.only = FALSE,  amortization.period = 20)
+#'   ),
+#'   "Fix1" = list(
+#'     list(debt = 1000, fix.rate = FALSE, period = 4, interest.only = TRUE, amortization.period = NULL),
+#'     list(debt = NULL, fix.rate = TRUE,  period = 3, interest.only = TRUE, amortization.period = NULL)
+#'   )
 #' )
 #' currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
 #' flexRate <- flex.rate()
@@ -126,14 +131,15 @@ fix.rate <- function(
 shinyPlan2plan <- function(
   shinyPlan,
   currentFixRates,   # vector of length n giving the current fixed rate mortges for a fixed period of 1 to n years
-  flexRate,    # Object from \code{\link{flex.rate}} giving the flexible rates. The period of this must be at least as long as \code{start.time} 
-  timeHorizon = NULL # period to predict to
+  flexRate    # Object from \code{\link{flex.rate}} giving the flexible rates. The period of this must be at least as long as \code{start.time} 
+#  timeHorizon = NULL # period to predict to
 ){
   
   # Find the longest period in the list
-  if(is.null(timeHorizon)){
-    timeHorizon <- max(sapply(shinyPlan, function(x){x$period}))
-  }
+    timeHorizon <- max(sapply(shinyPlan, function(x){
+      sum(sapply(x, function(y){y$period})) # period of a mortgage
+      })
+                       )
   
   # Build plan
   
@@ -142,20 +148,22 @@ shinyPlan2plan <- function(
   for(name in names(shinyPlan)){
     plan[[name]] <- list()
     start.time <- 0
-    debt <- shinyPlan[[name]]$debt
-    amortization.period <- shinyPlan[[name]]$amortization.period
-    i <- 0
+    amortization.period <- shinyPlan[[name]][[1]]$amortization.period
     
-    while(start.time < timeHorizon){ # Keep renewing until period is long enough
-      i <- i + 1
-      
-      # Period for this mortgage. Break out if period ==0
-      period <- ifelse(i == 1, shinyPlan[[name]]$period, shinyPlan[[name]]$renew)
-      if(period == 0) break()
-      
-      # Find the interest rate. 
+    debt <- shinyPlan[[name]][[1]]$debt
+    if(is.null(debt) || !is.numeric(debt)) stop(paste("shinyPlan[[", name, "]][[1]]$debt must be a numeric", sep = ""))
+    
+    for(i in 1:length(shinyPlan[[name]])){
+      # Use debt if given, othewise use the calculated value
+     if(!is.null(shinyPlan[[name]][[i]]$debt)){
+       debt <- shinyPlan[[name]][[i]]$debt
+     } 
+     
+      period <- shinyPlan[[name]][[i]]$period
+     
+    # Find the interest rate. 
       #  Fixed rate value. Function of time start
-      if(shinyPlan[[name]]$fix.rate){
+      if(shinyPlan[[name]][[i]]$fix.rate){
         rate <- fix.rate(
           start.time = start.time, 
           period = period, 
@@ -166,29 +174,74 @@ shinyPlan2plan <- function(
                        subset = month >= (start.time*12 + 1) & month <= ((start.time+period)*12)
         )[,"rate"]
       }
-      
-      # Build the plan for this mortgage
-      plan[[name]][[i]] <- list(debt = debt, 
-                                rate = rate, 
-                                period = period, 
-                                interest.only = shinyPlan[[name]]$interest.only, 
-                                amortization.period = amortization.period)
-      
-      # Update the start time, debt and amortization.period
-      start.time <- start.time + period
-      
-      if(!shinyPlan[[name]]$interest.only){
-        this.pay <- interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = amortization.period)
-        debt <- debt - sum(this.pay$amortization)
-        amortization.period <- amortization.period - period
-      } 
-      
+    
+    # Build the plan for this mortgage
+    plan[[name]][[i]] <- list(debt = debt, 
+                              rate = rate, 
+                              period = period, 
+                              interest.only = shinyPlan[[name]][[i]]$interest.only, 
+                              amortization.period = amortization.period)
+    
+    # Update the start time, debt and amortization.period
+    start.time <- start.time + period
+    
+    if(!shinyPlan[[name]][[i]]$interest.only){
+      this.pay <- interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = amortization.period)
+      debt <- debt - sum(this.pay$amortization)
+      amortization.period <- amortization.period - period
+    } 
     }
   }
-  
-  return(plan)
-  
+    return(plan)
+    
 }
+
+#     plan[[name]] <- list()
+#     start.time <- 0
+#     debt <- shinyPlan[[name]]$debt
+#     amortization.period <- shinyPlan[[name]]$amortization.period
+#     i <- 0
+#     
+#     while(start.time < timeHorizon){ # Keep renewing until period is long enough
+#       i <- i + 1
+#       
+#       # Period for this mortgage. Break out if period ==0
+#       period <- ifelse(i == 1, shinyPlan[[name]]$period, shinyPlan[[name]]$renew)
+#       if(period == 0) break()
+#       
+#       # Find the interest rate. 
+#       #  Fixed rate value. Function of time start
+#       if(shinyPlan[[name]]$fix.rate){
+#         rate <- fix.rate(
+#           start.time = start.time, 
+#           period = period, 
+#           current.fix.rates = currentFixRates, 
+#           flex.rate = flexRate)
+#       } else { # flexible interest rate vector. Function of time start and period
+#         rate <- subset(flexRate, 
+#                        subset = month >= (start.time*12 + 1) & month <= ((start.time+period)*12)
+#         )[,"rate"]
+#       }
+#       
+#       # Build the plan for this mortgage
+#       plan[[name]][[i]] <- list(debt = debt, 
+#                                 rate = rate, 
+#                                 period = period, 
+#                                 interest.only = shinyPlan[[name]]$interest.only, 
+#                                 amortization.period = amortization.period)
+#       
+#       # Update the start time, debt and amortization.period
+#       start.time <- start.time + period
+#       
+#       if(!shinyPlan[[name]]$interest.only){
+#         this.pay <- interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = amortization.period)
+#         debt <- debt - sum(this.pay$amortization)
+#         amortization.period <- amortization.period - period
+#       } 
+#       
+#     }
+#   }
+#   
 
 #====================================================================
 #' Find the value of one amortization payment
@@ -326,9 +379,7 @@ plan.pay <- function(
   
   # Error checks
   if(!is.na(match("Total", names(plan)))) stop("The name 'Total' is not allowed for a list name in plan")
-  
-  data.names <- names(interest.pay())[-1]
-  
+   
   interest <- list()
   for(name in names(plan)){
     interest[[name]] <- list()
@@ -343,9 +394,17 @@ plan.pay <- function(
       
       interest[[name]][[i]]$month <-  interest[[name]][[i]]$month + month
       month <- max(interest[[name]][[i]]$month)
+      
+      interest[[name]][[i]]$mortgage <- name
+      
+      interest[[name]][[i]]$sub.mortgage <- i
+      interest[[name]][[i]]$starting.debt <- plan[[name]][[i]]$debt
+      interest[[name]][[i]]$rate <- plan[[name]][[i]]$rate
+      interest[[name]][[i]]$interest.only <- plan[[name]][[i]]$interest.only
+      
     }
     interest[[name]] <- do.call(rbind, interest[[name]])
-    interest[[name]]$mortgage <- name
+    
   }
   
   # Merge together 
@@ -353,14 +412,82 @@ plan.pay <- function(
   row.names(interest) <- NULL
   
   # Find total  
+  data.names <- names(interest.pay())[-1]
   total <- ddply(interest, "month", function(x){apply(x[, data.names], 2, sum, na.rm = TRUE)})
   total$mortgage <- "Total"  
+  miss.names <- names(interest)[!names(interest) %in% names(total)]
+  total[, miss.names] <- NA
   interest <- rbind(interest, total)   
   
   interest$mortgage <- factor(interest$mortgage, levels = c("Total", names(plan)))
   #   interest$mortgage <- factor(interest$mortgage, levels = names(plan))
   
   return(interest)
+}
+
+#====================================================================
+#' Summary table of mortgages
+#'
+#' Summary table of mortgages
+#'
+#' @param   pay    an object from plan.pay 
+#' @param   timeHorizon optional maximum time in years for the summary calculations
+#' @return  A summary table
+#' @export
+#' @examples
+#' plan <- list(
+#'  "Fix1" = list(
+#'    list(debt = 1000, rate = 1, period = 5, interest.only = TRUE, amortization.period = NULL),
+#'    list(debt = 1000, rate = 2, period = 3, interest.only = TRUE, amortization.period = NULL)
+#'  ),
+#'  "Amortization" = list(
+#'    list(debt = 1000, rate = 2, period = 8, interest.only = FALSE, amortization.period = 20)
+#'  )
+#' )
+#' 
+#' plan <- plan.pay(plan)
+#' ribbon.plot.pay(plan)
+summaryPay <- function(
+  pay, 
+ timeHorizon = NULL
+){
+
+  require(plyr)
+  
+  out <-  ddply(pay, c("mortgage", "sub.mortgage"), function(x){
+    # x <- subset(pay, subset = mortgage == "Amortization" & sub.mortgage == 2)
+    # x <- subset(pay, subset = mortgage == "Total")
+  
+    if(!is.null(timeHorizon)) x <- subset(x, subset = month <= 12*timeHorizon)    
+    
+    ln <- dim(x)[1]
+    if(ln == 0) return(NULL)
+    
+    if(is.na(x$interest.only[1])){repayment.type <- ""} else {repayment.type <- switch(x$interest.only[1] + 1, "Amortization", "Interest")}
+     
+    data.frame(
+      year.start = (x$month[1] - 1)/12,
+      year.end = (x$month[ln])/12 - 1,
+      debt.start = round(x$starting.debt[1]),
+      average.rate = round(mean(x$rate), 2),
+      repayment.type = repayment.type,
+      interest = round(sum(x$interest)),
+      amortizaton = round(sum(x$amortization)),
+      total = round(sum(x$payment))  
+      )    
+  })
+  
+  #out[is.na(out)] <- ""
+  out$mortgage <- as.character(out$mortgage)
+  out$mortgage[out$sub.mortgage > 1] <- ""
+  
+  # Put total at end
+  out <- out[c(2:dim(out)[1], 1), ]
+  
+  names(out) <- gsub("\\.", " ", names(out))
+  names(out) <- paste(toupper(substring(names(out), 1, 1)), substring(names(out), 2), sep = "")
+  
+out 
 }
 
 #====================================================================

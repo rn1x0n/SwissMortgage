@@ -29,26 +29,52 @@ shinyServer(function(input, output){
   # shinyPlan
   shinyPlan <- function(){
     out <- list()
-    out[[input$name1]] = list(debt = input$debt1, fix.rate = input$fixRate1, period = input$period1, interest.only = input$interestOnly1, amortization.period = input$amortizationPeriod1, renew = input$renew1)
+    out[[input$name1]] <- list()
+    out[[input$name1]][[1]] <- list(debt = input$debt1a, fix.rate = input$fixRate1a, period = input$period1a, interest.only = input$interestOnly1a, amortization.period = input$amortizationPeriod1a)
+    if(input$renew1b){
+      if(input$changeDebt1b){debt1b <- input$debt1b} else { debt1b <- NULL} # can only change debt for interest only
+      out[[input$name1]][[2]] <- list(debt = debt1b, fix.rate = input$fixRate1b, period = input$period1b, interest.only = input$interestOnly1a) # amortization.period is calculated    
+    }
+    
     if(input$numMortgages >= 2){
-      out[[input$name2]] = list(debt = input$debt2, fix.rate = input$fixRate2, period = input$period2, interest.only = TRUE, renew = input$renew2)
+      out[[input$name2]] <- list()
+      out[[input$name2]][[1]] <- list(debt = input$debt2a, fix.rate = input$fixRate2a, period = input$period2a, interest.only = TRUE)     
+      if(input$renew2b){
+        if(input$changeDebt2b){debt2b <- input$debt2b} else { debt2b <- NULL}
+        out[[input$name2]][[2]] <- list(debt = debt2b, fix.rate = input$fixRate2b, period = input$period2b, interest.only = TRUE)
+      }    
     }
+    
     if(input$numMortgages >= 3){
-      out[[input$name3]] = list(debt = input$debt3, fix.rate = input$fixRate3, period = input$period3, interest.only = TRUE, amortization.period = NULL, renew = input$renew3)
+      out[[input$name3]] <- list()
+      out[[input$name3]][[1]] <- list(debt = input$debt3a, fix.rate = input$fixRate3a, period = input$period3a, interest.only = TRUE)     
+      if(input$renew3b){
+        if(input$changeDebt3b){debt3b <- input$debt3b} else { debt3b <- NULL}
+        out[[input$name3]][[2]] <- list(debt = debt3b, fix.rate = input$fixRate3b, period = input$period3b, interest.only = TRUE)
+      }    
     }
-    if(input$numMortgages >= 4){
-      out[[input$name4]] = list(debt = input$debt4, fix.rate = input$fixRate4, period = input$period4, interest.only = TRUE, amortization.period = NULL, renew = input$renew4)
+ 
+     if(input$numMortgages >= 4){
+      out[[input$name4]] <- list()
+      out[[input$name4]][[1]] <- list(debt = input$debt4a, fix.rate = input$fixRate4a, period = input$period4a, interest.only = TRUE)     
+      if(input$renew4b){
+        if(input$changeDebt4b){debt4b <- input$debt4b} else { debt4b <- NULL}
+        out[[input$name4]][[2]] <- list(debt = debt4b, fix.rate = input$fixRate4b, period = input$period4b, interest.only = TRUE)
+      }    
     }
     
     return(out)
   }
   
+  # Value to feed back to default input values
+  output$debt2a <- reactive(input$debt2a)
+  
   # Build the plan
   plan <- reactive({shinyPlan2plan(
     shinyPlan = shinyPlan(),
     currentFixRates = currentFixRates(),
-    flexRate = flexRate(),
-    timeHorizon = input$timeHorizon
+    flexRate = flexRate()
+    #timeHorizon = input$timeHorizon
   )})
   
   # Find payments
@@ -144,30 +170,22 @@ shinyServer(function(input, output){
   })
   
   # Output table
-  output$summary <- renderTable(
-{
-  summary <- ddply(payments(), "mortgage", function(x){
-    x <- subset(x, subset = month <= 12*input$timeHorizon)
-    data.frame(total = round(sum(x[,input$yaxis])))
-  })
-  names(summary) <- c("Mortgage", paste("Total", input$yaxis, "over", input$timeHorizon, "years"))
-  summary
-}, 
-digits = 0, 
-include.rownames=FALSE, 
+  output$summaryTitle <- renderText(paste("Summary details over", input$timeHorizon, "years"))
+  
+  output$summary <- renderTable(summaryPay(payments(), timeHorizon = input$timeHorizon),
+    
+#   summary <- ddply(payments(), "mortgage", function(x){
+#     x <- subset(x, subset = month <= 12*input$timeHorizon)
+#     data.frame(total = round(sum(x[,input$yaxis])))
+#   })
+#   names(summary) <- c("Mortgage", paste("Total", input$yaxis, "over", input$timeHorizon, "years"))
+#   summary 
+digits = c(0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0),
+include.rownames = FALSE, 
 format.args=list(big.mark = " ", decimal.mark = ".")
   )
   
-  #   output$summaryXtable <- renderText({
-  #     summary <- ddply(payments(), "mortgage", function(x){
-  #       x <- subset(x, subset = month <= 12*input$timeHorizon)
-  #       data.frame(total = round(sum(x$payment)/1000))
-  #     })
-  #     names(summary) <- c("Mortgage", "Total Payments (1000s)")
-  #     print(xtable(summary, digits = 0), type = "html", include.rownames=FALSE)
-  #   })
-  #    
-  output$debug <- renderText({ymax()})
+  output$debug <- renderText({shinyPlan()})
   
   # Goolge analytics
   output$googleAnalytics <- renderText({

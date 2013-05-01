@@ -46,36 +46,32 @@ fix.rate(start.time = 0, period = 5, current.fix.rates = currentFixRates, flex.r
 
 amortization(debt = debt, rate = rate, period = 10)
 interest.pay(debt = debt, rate = rate, period = period, interest.only = TRUE)
-pay <- interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = 15)
-sum(pay$repayment)
+interest.pay(debt = debt, rate = rate, period = period, interest.only = FALSE, amortization.period = 15)
+
 
 shinyPlan <- list(
-"Fix1" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 5), 
-"Fix2" = list(debt = 200000, fix.rate = TRUE, period = 3, interest.only = TRUE, amortization.period = NULL, renew = 0),
-"Amm1" = list(debt = 200000, fix.rate = FALSE, period = 10, interest.only = FALSE, amortization.period = 20, renew = 0) 
+  "Amortization" = list(
+    list(debt = 1000, fix.rate = TRUE,  period = 8, interest.only = FALSE,  amortization.period = 20),
+    list(debt = NULL, fix.rate = TRUE,  period = 8, interest.only = FALSE)
+  ),
+  "Fix" = list(
+    list(debt = 1000, fix.rate = FALSE, period = 4, interest.only = TRUE),
+    list(debt = NULL, fix.rate = TRUE,  period = 3, interest.only = TRUE)
+  )
 )
 
-plan0 <- shinyPlan2plan(
+plan <- shinyPlan2plan(
   shinyPlan = shinyPlan,
   currentFixRates = fix.rate(period = 1:10),
-  flexRate = flex.rate(),
-  timeHorizon = 10
+  flexRate = flex.rate()
   )
 
- plan1 <- list(
-  "Fix1" = list(
-    list(debt = 1000, rate = 1, period = 5, interest.only = TRUE, amortization.period = NULL),
-    list(debt = 1000, rate = 2, period = 3, interest.only = TRUE, amortization.period = NULL)
-  ),
-  "Amortization" = list(
-    list(debt = 1000, rate = 2, period = 8, interest.only = FALSE,  amortization.period = 20)
-  )
- )
 
-payments <- payments0 <- plan.pay(plan0)
-payments1 <- plan.pay(plan1)
+pay <- plan.pay(plan)
 
-summary <- ddply(payments, "mortgage", function(x){
+summaryPay(pay, timeHorizon = 6)
+
+summary <- ddply(pay, "mortgage", function(x){
   x <- subset(x, subset = month <= 12*10)
   data.frame(total = sum(x$payment))})
 names(summary) <- c("Mortgage", "Total Payments")

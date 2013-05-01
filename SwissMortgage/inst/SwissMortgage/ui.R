@@ -1,5 +1,14 @@
 library(shiny)
 
+# Constants
+max.mortgage <- 1000000
+value.mortgage <- 100000
+step.mortgage <- 25000
+
+max.period <- 10
+value.period <- 5
+step.period <- 1
+
 shinyUI(pageWithSidebar(
   
   # Application title
@@ -14,16 +23,39 @@ shinyUI(pageWithSidebar(
     
     # First mortgage  
     h4("Mortgage 1"),  
+    helpText("Only mortgage 1 can be amortized"),
     textInput("name1", "Name of mortgage:", "Amortization"),   
-    checkboxInput("interestOnly1", "Interest only", FALSE),
-    checkboxInput("fixRate1", "Fixed rate", TRUE),
-    sliderInput("debt1", "Amount for mortgage:", min = 0, max = 1000000, value = 100000, step = 25000),
-    sliderInput("period1", "Period (years) for mortgage:", min = 0, max = 10, value = 10, step = 1),
+    
+    checkboxInput("fixRate1a", "Fixed rate", TRUE),
+    checkboxInput("interestOnly1a", "Interest only", FALSE),
+    sliderInput("debt1a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
+    sliderInput("period1a", "Period (years) for mortgage:", min = 0, max = max.period, value = 10, step = 1),
     conditionalPanel(
-      condition = "input.interestOnly1 == false",
-      sliderInput("amortizationPeriod1", "Amortization period (years) for mortgage:", min = 10, max = 25, value = 20, step = 1)  
+      condition = "input.interestOnly1a == false",
+      sliderInput("amortizationPeriod1a", "Amortization period (years) for mortgage:", min = 10, max = 25, value = 20, step = 1)  
     ),
-    sliderInput("renew1", "Period for renewed mortgage (0 = not renew):", min = 0, max = 10, value = 0, step = 1),
+    
+    checkboxInput("renew1b", "Renew mortgage", FALSE),
+    conditionalPanel(
+      condition = "input.renew1b == true",
+      checkboxInput("fixRate1b", "Fixed rate", TRUE),
+      
+      conditionalPanel(
+        condition = "input.interestOnly1a == false",
+       helpText("Debt can't be changed for an amortized mortgage")
+      ),
+       
+       conditionalPanel(
+        condition = "input.interestOnly1a == true",
+        checkboxInput("changeDebt1b", "Change debt", FALSE), 
+        conditionalPanel(
+          condition = "input.changeDebt1b == true",
+          sliderInput("debt1b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
+        )
+        
+         ),
+      sliderInput("period1b", "Period (years) for mortgage:", min = 0, max = max.period, value = 10, step = 1)
+    ),
     
     # Second mortgage
     conditionalPanel(
@@ -31,11 +63,26 @@ shinyUI(pageWithSidebar(
       br(),
       h4("Mortgage 2"),
       textInput("name2", "Name of mortgage:", "Fix 1"),
-      checkboxInput("fixRate2", "Fixed rate", TRUE),
-      sliderInput("debt2", "Amount for mortgage:", min = 0, max = 1000000, value = 100000, step = 25000),
-      sliderInput("period2", "Period (years) for mortgage:", min = 0, max = 10, value = 5, step = 1),
-      sliderInput("renew2", "Period for renewed mortgage (0 = not renew):", min = 0, max = 10, value = 5, step = 1)
+      
+      checkboxInput("fixRate2a", "Fixed rate", TRUE),
+      sliderInput("debt2a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
+      sliderInput("period2a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step =  step.period),
+      
+      checkboxInput("renew2b", "Renew mortgage", FALSE),   
+      conditionalPanel(
+        condition = "input.renew2b == true",
+        checkboxInput("fixRate2b", "Fixed rate", TRUE),
+        
+        checkboxInput("changeDebt2b", "Change debt", FALSE), 
+        conditionalPanel(
+          condition = "input.changeDebt2b == true",
+          sliderInput("debt2b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
+        ),
+        
+        sliderInput("period2b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
+      )
     ),
+    
     
     # Third mortgage
     conditionalPanel(
@@ -43,23 +90,49 @@ shinyUI(pageWithSidebar(
       br(),
       h4("Mortgage 3"),
       textInput("name3", "Name of mortgage:", "Fix 2"),
-      checkboxInput("fixRate3", "Fixed rate", TRUE),
-      sliderInput("debt3", "Amount for mortgage:", min = 0, max = 1000000, value = 100000, step = 25000),
-      sliderInput("period3", "Period (years) for mortgage:", min = 0, max = 10, value = 5, step = 1),
-      sliderInput("renew3", "Period for renewed mortgage (0 = not renew):", min = 0, max = 10, value = 5, step = 1)
+      checkboxInput("fixRate3a", "Fixed rate", TRUE),
+      sliderInput("debt3a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
+      sliderInput("period3a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = 1),
+      checkboxInput("renew3b", "Renew mortgage", FALSE),   
+      conditionalPanel(
+        condition = "input.renew3b == true",
+        checkboxInput("fixRate3b", "Fixed rate", TRUE),
+        
+        checkboxInput("changeDebt3b", "Change debt", FALSE), 
+        conditionalPanel(
+          condition = "input.changeDebt3b == true",
+          sliderInput("debt3b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
+        ),
+        
+        sliderInput("period3b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
+      )
     ),
-      
+    
+    
     # Fourth mortgage
     conditionalPanel(
       condition = "input.numMortgages >= 4",
       br(),
       h4("Mortgage 4"),
       textInput("name4", "Name of mortgage:", "Fix 3"),
-      checkboxInput("fixRate4", "Fixed rate", TRUE),
-      sliderInput("debt4", "Amount for mortgage:", min = 0, max = 1000000, value = 100000, step = 25000),
-      sliderInput("period4", "Period (years) for mortgage:", min = 0, max = 10, value = 5, step = 1),
-      sliderInput("renew4", "Period for renewed mortgage (0 = not renew):", min = 0, max = 10, value = 5, step = 1)
+      checkboxInput("fixRate4a", "Fixed rate", TRUE),
+      sliderInput("debt4a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
+      sliderInput("period4a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = 1),
+      checkboxInput("renew4b", "Renew mortgage", FALSE),   
+      conditionalPanel(
+        condition = "input.renew4b == true",
+        checkboxInput("fixRate4b", "Fixed rate", TRUE),
+        
+        checkboxInput("changeDebt4b", "Change debt", FALSE), 
+        conditionalPanel(
+          condition = "input.changeDebt4b == true",
+          sliderInput("debt4b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
+        ),
+        
+        sliderInput("period4b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
+      )
     ),
+    
     
     # Graph options
     br(),
@@ -112,6 +185,7 @@ shinyUI(pageWithSidebar(
     tabsetPanel(
       tabPanel("Results", 
                plotOutput("interestPlot"), 
+               h4(textOutput("summaryTitle")),
                tableOutput("summary"),
                #textOutput("debug"),
                #htmlOutput("summaryXtable"),
