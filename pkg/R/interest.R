@@ -431,6 +431,7 @@ plan.pay <- function(
 #'
 #' @param   pay    an object from \code{\link{plan.pay}} 
 #' @param   timeHorizon optional maximum time in years for the summary calculations
+#' @param xtable logical. If TRUE a xtable is printed as html
 #' @return  A summary table
 #' @export
 #' @examples

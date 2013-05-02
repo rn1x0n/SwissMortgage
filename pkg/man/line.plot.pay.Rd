@@ -6,7 +6,7 @@
     ymax = NULL)
 }
 \arguments{
-  \item{pay}{an object from plan.pay}
+  \item{pay}{an object from \code{\link{plan.pay}}}
 
   \item{y}{y value to plot, either "payment", "interest",
   "amortization"}

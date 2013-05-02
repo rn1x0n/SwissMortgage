@@ -2,13 +2,16 @@
 \alias{summaryPay}
 \title{Summary table of mortgages}
 \usage{
-  summaryPay(pay, timeHorizon = NULL)
+  summaryPay(pay, timeHorizon = NULL, xtable = FALSE)
 }
 \arguments{
-  \item{pay}{an object from plan.pay}
+  \item{pay}{an object from \code{\link{plan.pay}}}
 
   \item{timeHorizon}{optional maximum time in years for the
   summary calculations}
+
+  \item{xtable}{logical. If TRUE a xtable is printed as
+  html}
 }
 \value{
   A summary table

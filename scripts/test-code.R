@@ -5,23 +5,10 @@ library(ggplot2)
 library(shiny)
 library(xtable)
 source("SwissMortgage/R/interest.R")
-
 runApp("SwissMortgage/inst/SwissMortgage")
 
-#library(SwissMortgage)
-#R -e "shiny::runApp('/Users/Richard/Documents/R/Mortgage/SwissMortgage/inst/SwissMortgage')"
 
 #####################################################################
-
-#####################################################################
-# Roxygen2 and build
-
-library(roxygen2)
-roxygenize("SwissMortgage")
-system("R CMD check SwissMortgage", intern = TRUE)
-system("R CMD build SwissMortgage", intern = TRUE)
-install.packages("~/Documents/R/SwissMortgage/SwissMortgage_0.1.tar.gz", repos = NULL, type = "source")
-
 # Function to include in library to start a web server
 # shiny::runApp(system.file('SwissMortgage', package='SwissMortgage'))
 
