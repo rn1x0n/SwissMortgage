@@ -102,7 +102,6 @@ fix.rate <- function(
 #' @param shinyPlan           a shiny plan list 
 #' @param currentFixRates   vector of length n giving the current fixed rate mortges for a fixed period of 1 to n years
 #' @param flexRate           object from \code{\link{flex.rate}} giving the flexible rates. 
-#' @param timeHorizon        period over which the final set of morgages perdict over. Default is NULL, in which case it is the longest single period of the shinyPlan set
 #' @return a plan list. See \code{\link{plan.pay}}
 #' @details The set of mortages is defined by the list \code{ShinyPlan}. 
 #' Each element of ths list is a named list of lists defining a set of subsequent mortgages.
@@ -127,7 +126,7 @@ fix.rate <- function(
 #' )
 #' currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
 #' flexRate <- flex.rate()
-#' shinyPlan2plan(shinyPlan = shinyPlan, currentFixRates = currentFixRates,  flexRate = flexRate, timeHorizon = 10)
+#' shinyPlan2plan(shinyPlan = shinyPlan, currentFixRates = currentFixRates,  flexRate = flexRate)
 shinyPlan2plan <- function(
   shinyPlan,
   currentFixRates,   # vector of length n giving the current fixed rate mortges for a fixed period of 1 to n years
@@ -430,7 +429,7 @@ plan.pay <- function(
 #'
 #' Summary table of mortgages
 #'
-#' @param   pay    an object from plan.pay 
+#' @param   pay    an object from \code{\link{plan.pay}} 
 #' @param   timeHorizon optional maximum time in years for the summary calculations
 #' @return  A summary table
 #' @export
@@ -449,10 +448,12 @@ plan.pay <- function(
 #' ribbon.plot.pay(plan)
 summaryPay <- function(
   pay, 
- timeHorizon = NULL
+ timeHorizon = NULL,
+  xtable = FALSE
 ){
 
   require(plyr)
+  require(xtable)
   
   out <-  ddply(pay, c("mortgage", "sub.mortgage"), function(x){
     # x <- subset(pay, subset = mortgage == "Amortization" & sub.mortgage == 2)
@@ -487,7 +488,17 @@ summaryPay <- function(
   names(out) <- gsub("\\.", " ", names(out))
   names(out) <- paste(toupper(substring(names(out), 1, 1)), substring(names(out), 2), sep = "")
   
-out 
+  # Render ax xtable is required
+  if(xtable){
+    print(xtable(out),
+          type = "html",
+    digits = c(0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0),
+    include.rownames = FALSE, 
+    format.args=list(big.mark = " ", decimal.mark = ".")
+    )
+  } else {    
+return(out) 
+}
 }
 
 #====================================================================
@@ -495,7 +506,7 @@ out
 #'
 #' Ribbon ploy of payments 
 #'
-#' @param   pay    an object from plan.pay 
+#' @param   pay    an object from \code{\link{plan.pay}} 
 #' @param   y      y value to plot, either "payment", "interest", "amortization"
 #' @param   xmax   optional x-axis upper limit
 #' @param   ymax   optional y-axis upper limit
@@ -564,7 +575,7 @@ ribbon.plot.pay <- function(
 #'
 #' Line ploy of payments 
 #'
-#' @param   pay    an object from plan.pay 
+#' @param   pay    an object from \code{\link{plan.pay}} 
 #' @param   y      y value to plot, either "payment", "interest", "amortization"
 #' @param   xmax   optional x-axis upper limit
 #' @param   ymax   optional y-axis upper limit

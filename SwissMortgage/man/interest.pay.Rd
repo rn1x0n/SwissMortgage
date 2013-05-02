@@ -24,13 +24,15 @@
 \value{
   A data frame with elements \item{month}{time in months}
   \item{interest}{interest that month}
-  \item{repayment}{repayment that month} \item{payment}{sum
-  of interest and repayment}
+  \item{amortization}{amortization repayment that month}
+  \item{payment}{sum of interest and amortization
+  repayment}
 }
 \description{
   This function finds the payment each month for a fixed or
   amortization mortgage. This is also broken down by how
-  much is a repayment and how much is interest.
+  much is a amortization repayment and how much is
+  interest.
 }
 \examples{
 interest.pay(debt = 1000, rate = 1, period = 5, interest.only = FALSE, amortization.period = 20)

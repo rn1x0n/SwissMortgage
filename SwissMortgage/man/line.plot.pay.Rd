@@ -1,8 +1,8 @@
-\name{ribbon.plot.pay}
-\alias{ribbon.plot.pay}
-\title{Ribbon plot for payments}
+\name{line.plot.pay}
+\alias{line.plot.pay}
+\title{Line plot for payments}
 \usage{
-  ribbon.plot.pay(pay, y = "payment", xmax = NULL,
+  line.plot.pay(pay, y = "payment", xmax = NULL,
     ymax = NULL)
 }
 \arguments{
@@ -16,10 +16,10 @@
   \item{ymax}{optional y-axis upper limit}
 }
 \value{
-  A ggplot2 ribbon plot
+  A ggplot2 line plot
 }
 \description{
-  Ribbon ploy of payments
+  Line ploy of payments
 }
 \examples{
 plan <- list(
@@ -33,6 +33,6 @@ plan <- list(
 )
 
 plan <- plan.pay(plan)
-ribbon.plot.pay(plan)
+line.plot.pay(plan)
 }
 

@@ -1,25 +1,20 @@
-\name{ribbon.plot.pay}
-\alias{ribbon.plot.pay}
-\title{Ribbon plot for payments}
+\name{summaryPay}
+\alias{summaryPay}
+\title{Summary table of mortgages}
 \usage{
-  ribbon.plot.pay(pay, y = "payment", xmax = NULL,
-    ymax = NULL)
+  summaryPay(pay, timeHorizon = NULL)
 }
 \arguments{
   \item{pay}{an object from plan.pay}
 
-  \item{y}{y value to plot, either "payment", "interest",
-  "amortization"}
-
-  \item{xmax}{optional x-axis upper limit}
-
-  \item{ymax}{optional y-axis upper limit}
+  \item{timeHorizon}{optional maximum time in years for the
+  summary calculations}
 }
 \value{
-  A ggplot2 ribbon plot
+  A summary table
 }
 \description{
-  Ribbon ploy of payments
+  Summary table of mortgages
 }
 \examples{
 plan <- list(

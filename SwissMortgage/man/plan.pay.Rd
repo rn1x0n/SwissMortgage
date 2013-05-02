@@ -13,16 +13,16 @@
   month with elements \item{month}{time in months}
   \item{mortgage}{factor giving the name of the mortgage,
   taken from the names in \code{plan}}
-  \item{interest}{interest that month and mortgage}
-  \item{repayment}{repayment that month and mortgage}
+  \item{interest}{interest that month}
+  \item{amortization}{amortization repayment that month}
   \item{payment}{sum of interest and repayment for that
-  month and mortgage}
+  month}
 }
 \description{
   This function finds the payment each month for a set of
   fixed or amortization mortgages. This is broken down by
-  how much is a repayment and how much is interest, for
-  each mortgage
+  how much is a amortization repayment and how much is
+  interest, for each mortgage
 }
 \details{
   The set of mortages is defined by the list \code{plan}.

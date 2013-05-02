@@ -7,7 +7,8 @@ Maintainer: Richard Nixon <richard2718@gmail.com>
 Depends:
     R (>= 2.15.1),
     ggplot2,
-    plyr
+    plyr,
+    xtable
 License: GPL-2
 Collate:
     'interest.R'
