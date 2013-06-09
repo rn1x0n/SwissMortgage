@@ -7,7 +7,7 @@ library(SwissMortgage)
 library(knitr)
 library(ggplot2)
 options(scipen=999)
-opts_chunk$set(fig.keep="none")
+#opts_chunk$set(fig.keep="none")
 options(markdown.HTML.header = system.file('misc', 'vignette.css', package='knitr'))
 ```
 

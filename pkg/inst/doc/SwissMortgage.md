@@ -25,6 +25,8 @@ flexRate <- flex.rate(times = c(0, 5), rates = c(1, 3), last.time = 10)
 ggplot(flexRate, aes(x = month, y = rate)) + geom_line()
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3.png) 
+
 
 
 ## Define the mortgage plan
@@ -78,7 +80,7 @@ summaryPay(pay)
 
 
 <!-- html table generated in R 3.0.0 by xtable 1.7-1 package -->
-<!-- Sun Jun  9 20:35:33 2013 -->
+<!-- Sun Jun  9 20:45:27 2013 -->
 <TABLE border=1>
 <TR> <TH> Mortgage </TH> <TH> Sub mortgage </TH> <TH> Year start </TH> <TH> Year end </TH> <TH> Debt start </TH> <TH> Average rate </TH> <TH> Repayment type </TH> <TH> Interest </TH> <TH> Amortizaton </TH> <TH> Total </TH>  </TR>
   <TR> <TD> Amortization - 10 year fix </TD> <TD align="right"> 1 </TD> <TD align="right"> 0.0 </TD> <TD align="right"> 10.0 </TD> <TD align="right"> 100 000 </TD> <TD align="right"> 2.06 </TD> <TD> Amortization </TD> <TD align="right"> 16 175 </TD> <TD align="right"> 44 873 </TD> <TD align="right"> 61 048 </TD> </TR>
@@ -95,9 +97,13 @@ summaryPay(pay)
 ribbon.plot.pay(pay)
 ```
 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
+
 
 
 ```r
 line.plot.pay(pay)
 ```
+
+![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
 
