@@ -1,0 +1,89 @@
+<!--
+%\VignetteEngine{knitr}
+-->
+
+```{r, echo=FALSE, message = FALSE, results='hide'}
+library(SwissMortgage)
+library(knitr)
+library(ggplot2)
+options(scipen=999)
+#opts_chunk$set(fig.keep="none")
+options(markdown.HTML.header = system.file('misc', 'vignette.css', package='knitr'))
+```
+
+# Swiss Mortgage Calculator
+
+R package for doing Swiss Mortgage calculations
+
+This library has also has a [R shiny application](http://glimmer.rstudio.com/m1x0n/SwissMortgage)
+
+## Define the interest rates
+### Current fixed rates
+Define a vector giving the current fixed rate mortgages for a fixed period of 1 to 10 years.
+```{r}
+currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
+```
+
+### LIBOR rates
+The `flex.rate` function defines what you think the interest rate will be in the next 10 years.
+The current LIBOR rate is 1%, and we think this will rise to 3% in the next 5 years, and stay there.  
+```{r, fig.width = 7, fig.height = 5}
+flexRate <- flex.rate(times = c(0, 5), rates = c(1, 3), last.time = 10)
+ggplot(flexRate, aes(x = month, y = rate)) + geom_line()
+```
+
+
+## Define the mortgage plan
+The mortgage plan is made up of three mortgages:
+* An amortization mortgage for 100'000 CHF, with a 10 year fixed rate and amortization period of 20 years.
+* An interest only mortgage for 300'000 CHF, with a 5 year fixed rate.
+  * 200'000 CHF of this is then paid off, and another interest only mortgage is started for the remaining 100'000 CHF, with a 5 year fixed rate.
+* An interest only mortgage for for 200'000 CHF, with a LIBOR rate. 
+
+```{r, tidy=FALSE}
+shinyPlan <- list(
+  "Amortization - 10 year fix" = list(
+    list(debt = 100000, fix.rate = TRUE,  period = 10, interest.only = FALSE,  amortization.period = 20)
+  ),
+  "5 year fix, and part pay off" = list(
+    list(debt = 300000, fix.rate = TRUE, period = 5, interest.only = TRUE),
+    list(debt = 100000, fix.rate = TRUE, period = 5, interest.only = TRUE)
+  ),
+  "LIBOR" = list(
+    list(debt = 200000, fix.rate = FALSE, period = 10, interest.only = TRUE)
+  )
+)
+```
+
+## Add in the interest rates needed for the calculations
+```{r, tidy=FALSE}
+plan <- shinyPlan2plan(
+  shinyPlan = shinyPlan,
+  currentFixRates = currentFixRates,
+  flexRate = flexRate
+  )
+```
+
+## Perform the calculations
+```{r}
+pay <- plan.pay(plan)
+```
+
+## See the results
+### Summary
+```{r, eval=FALSE}
+summaryPay(pay)
+```
+
+```{r, echo=FALSE, results='asis'}
+summaryPay(pay, xtable = TRUE)
+```
+
+### Plots
+```{r, fig.width = 9, fig.height = 5}
+ribbon.plot.pay(pay)
+```
+
+```{r, fig.width = 9, fig.height = 5}
+line.plot.pay(pay)
+```
