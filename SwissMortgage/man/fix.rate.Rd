@@ -28,7 +28,7 @@
   rates in the future
 }
 \examples{
-flexRate <- flex.rate(times = c(0, 10), rates = c(1, 5))
+flexRate <- flex.rate()
 current.fix.rates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
 fix.rate(start.time = 0, period = 5, current.fix.rates = current.fix.rates, flex.rate = flexRate)
 }

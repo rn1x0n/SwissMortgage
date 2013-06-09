@@ -1,23 +1,25 @@
-\name{summaryPay}
-\alias{summaryPay}
-\title{Summary table of mortgages}
+\name{line.plot.pay}
+\alias{line.plot.pay}
+\title{Line plot for payments}
 \usage{
-  summaryPay(pay, timeHorizon = NULL, xtable = FALSE)
+  line.plot.pay(pay, y = "payment", xmax = NULL,
+    ymax = NULL)
 }
 \arguments{
   \item{pay}{an object from \code{\link{plan.pay}}}
 
-  \item{timeHorizon}{optional maximum time in years for the
-  summary calculations}
+  \item{y}{y value to plot, either "payment", "interest",
+  "amortization"}
 
-  \item{xtable}{logical. If TRUE a xtable is printed as
-  html}
+  \item{xmax}{optional x-axis upper limit}
+
+  \item{ymax}{optional y-axis upper limit}
 }
 \value{
-  A summary table
+  A ggplot2 line plot
 }
 \description{
-  Summary table of mortgages
+  Line ploy of payments
 }
 \examples{
 plan <- list(
@@ -30,7 +32,7 @@ plan <- list(
  )
 )
 
-pay <- plan.pay(plan)
-summaryPay(pay)
+plan <- plan.pay(plan)
+line.plot.pay(plan)
 }
 

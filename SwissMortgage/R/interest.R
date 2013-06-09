@@ -4,63 +4,36 @@
 # PAYMENTS
 
 #====================================================================
-
 #' Find the flexible interest rates over given future period
 #'
-#' This function defines the flexible interest rates for a given period.
+#' This function predicts the flexible interest rates for a given period.
 #'
-#' @param times     numeric vector of times in years (starts at time 0)
-#' @param rates     numeric vector of rates for each time (first element is current rate)
-#' @param last.time extent the curve upto the this time
+#' @param current.rate current interest rate
+#' @param final.rate   final interest rate
+#' @param period       period in years over which the rate will change 
+#' @param  extend.period after the period has ended keep at the final rate for this long
 #' @return  A data frame with elements
-#' \item{month}{time in months. Starts at month = 1, for the rate in the first month}
+#' \item{month}{time in months}
 #' \item{rate}{interest rate that month}
 #' @export
 #' @examples
-#' flex.rate(times = c(0, 3, 6, 10), rates = c(1, 2, 2.5, 5), last.time = 12)
+#' flex.rate(current.rate = 1, final.rate = 5, period = 10)
 flex.rate <- function(
-  times,     
-  rates,     
-  last.time = 50  
+  current.rate = 1,   # Current interest rate
+  final.rate = 5,     # Final interest rate
+  period = 10,    # Period in years over which the rate will change 
+  extend.period = 50 # After the period has ended keep at the final rate for this long
+  
 ){
   
-  # Data checks
-  # times and rates are the same length
-  if(length(times) != length(rates)) stop("Times and rates must be the same length")
-  # first element of times much be zero
-  if(times[1] != 0) stop("First element of times must = 0")
+  ln <- period * 12  
+  month <- seq(1, ln, by = 1)
   
-  # Convert years to months
-  months <- times * 12
+  rate <- current.rate + (month-1) * (final.rate - current.rate)/(period * 12 -1)
+  rate <- c(rate, rep(rate[length(rate)], times = (extend.period - period)*12))
   
-  # Find the gradients (beta) and intercepts (alpha) of the piecewisw linear function
-  alpha <- beta <- c()
-  for(i in 1:(length(times) - 1)){ 
-    beta[i] <- (rates[i+1] - rates[i])/(months[i+1] - months[i])
-    alpha[i] <- rates[i] - beta[i]*months[i]  
-  }
-  
-  # Build the function
-  month <- 0:max(max(months), last.time * 12)
-  # function for each section, and section index for each month
-  funs <- lapply(1:length(beta), function(i){alpha[i] + beta[i] * month})
-  
-  month.ind <- rep(NA, length(month))
-  for(i in 1:length(beta)){ 
-    month.ind[month >= months[i] & month < months[i+1]] <- i
-  }
-  month.ind[is.na(month.ind)] <- length(beta)
-  
-  # rate for each month
-  rate <- sapply(1:length(month), function(m){funs[[month.ind[m]]][m]})
-   
-  # extend upto last time
-    rate[month > max(months)] <- rate[month == max(months)]
-
-  
-  return(data.frame(month = month + 1, rate = rate))
+  data.frame(month = 1:length(rate), rate)
 }
-
 
 #====================================================================
 #' Find the fixed interest rates over given future period
@@ -75,7 +48,7 @@ flex.rate <- function(
 #' @return The fixed interest rate
 #' @export
 #' @examples
-#' flexRate <- flex.rate(times = c(0, 10), rates = c(1, 5))
+#' flexRate <- flex.rate()
 #' current.fix.rates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
 #' fix.rate(start.time = 0, period = 5, current.fix.rates = current.fix.rates, flex.rate = flexRate)
 fix.rate <- function(
@@ -152,7 +125,7 @@ fix.rate <- function(
 #'   )
 #' )
 #' currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
-#' flexRate <- flex.rate(times = c(0, 10), rates = c(1, 5))
+#' flexRate <- flex.rate()
 #' shinyPlan2plan(shinyPlan = shinyPlan, currentFixRates = currentFixRates,  flexRate = flexRate)
 shinyPlan2plan <- function(
   shinyPlan,
@@ -485,7 +458,7 @@ summaryPay <- function(
   
   out <-  ddply(pay, c("mortgage", "sub.mortgage"), function(x){
     # x <- subset(pay, subset = mortgage == "Amortization" & sub.mortgage == 2)
-    # x <- subset(pay, subset = mortgage == unique(pay$mortgage)[2] & sub.mortgage == 1)
+    # x <- subset(pay, subset = mortgage == "Total")
   
     if(!is.null(timeHorizon)) x <- subset(x, subset = month <= 12*timeHorizon)    
     
@@ -496,7 +469,7 @@ summaryPay <- function(
      
     data.frame(
       year.start = (x$month[1] - 1)/12,
-      year.end = (x$month[ln])/12,
+      year.end = (x$month[ln])/12 - 1,
       debt.start = round(x$starting.debt[1]),
       average.rate = round(mean(x$rate), 2),
       repayment.type = repayment.type,
@@ -518,8 +491,9 @@ summaryPay <- function(
   
   # Render ax xtable is required
   if(xtable){
-    print(xtable(out, digits = c(0, 0, 0, 1, 1, 0, 2, 0, 0, 0, 0)),
-          type = "html",  
+    print(xtable(out),
+          type = "html",
+    digits = c(0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0),
     include.rownames = FALSE, 
     format.args=list(big.mark = " ", decimal.mark = ".")
     )
@@ -582,7 +556,7 @@ ribbon.plot.pay <- function(
     scale_fill_discrete(name = "Mortgage")
   
   if(!is.null(xmax) & is.null(ymax)){
-    p <- p + coord_cartesian(xlim = c(0, xmax*1.0))
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05))
   }
   
   if(is.null(xmax) & !is.null(ymax)){
@@ -590,7 +564,7 @@ ribbon.plot.pay <- function(
   }
   
   if(!is.null(xmax) & !is.null(ymax)){
-    p <- p + coord_cartesian(xlim = c(0, xmax*1.0), ylim = c(0, ymax*1.05))
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05), ylim = c(0, ymax*1.05))
   }
   
   return(p)
@@ -643,7 +617,7 @@ line.plot.pay <- function(
     scale_colour_discrete(name = "Mortgage") 
   
   if(!is.null(xmax) & is.null(ymax)){
-    p <- p + coord_cartesian(xlim = c(0, xmax*1.0))
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05))
   }
   
   if(is.null(xmax) & !is.null(ymax)){
@@ -651,7 +625,7 @@ line.plot.pay <- function(
   }
   
   if(!is.null(xmax) & !is.null(ymax)){
-    p <- p + coord_cartesian(xlim = c(0, xmax*1.0), ylim = c(0, ymax*1.05))
+    p <- p + coord_cartesian(xlim = c(0, xmax*1.05), ylim = c(0, ymax*1.05))
   }
   
   return(p)

@@ -51,7 +51,7 @@ shinyPlan <- list(
   )
 )
 currentFixRates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
-flexRate <- flex.rate(times = c(0, 10), rates = c(1, 5))
+flexRate <- flex.rate()
 shinyPlan2plan(shinyPlan = shinyPlan, currentFixRates = currentFixRates,  flexRate = flexRate)
 }
 

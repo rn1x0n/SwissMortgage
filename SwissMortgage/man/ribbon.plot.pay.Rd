@@ -1,23 +1,25 @@
-\name{summaryPay}
-\alias{summaryPay}
-\title{Summary table of mortgages}
+\name{ribbon.plot.pay}
+\alias{ribbon.plot.pay}
+\title{Ribbon plot for payments}
 \usage{
-  summaryPay(pay, timeHorizon = NULL, xtable = FALSE)
+  ribbon.plot.pay(pay, y = "payment", xmax = NULL,
+    ymax = NULL)
 }
 \arguments{
   \item{pay}{an object from \code{\link{plan.pay}}}
 
-  \item{timeHorizon}{optional maximum time in years for the
-  summary calculations}
+  \item{y}{y value to plot, either "payment", "interest",
+  "amortization"}
 
-  \item{xtable}{logical. If TRUE a xtable is printed as
-  html}
+  \item{xmax}{optional x-axis upper limit}
+
+  \item{ymax}{optional y-axis upper limit}
 }
 \value{
-  A summary table
+  A ggplot2 ribbon plot
 }
 \description{
-  Summary table of mortgages
+  Ribbon ploy of payments
 }
 \examples{
 plan <- list(
@@ -30,7 +32,7 @@ plan <- list(
  )
 )
 
-pay <- plan.pay(plan)
-summaryPay(pay)
+plan <- plan.pay(plan)
+ribbon.plot.pay(plan)
 }
 

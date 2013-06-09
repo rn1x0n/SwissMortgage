@@ -2,29 +2,27 @@
 \alias{flex.rate}
 \title{Find the flexible interest rates over given future period}
 \usage{
-  flex.rate(current.rate = 1, final.rate = 5, period = 10,
-    extend.period = 50)
+  flex.rate(times, rates, last.time = 50)
 }
 \arguments{
-  \item{current.rate}{current interest rate}
+  \item{times}{numeric vector of times in years (starts at
+  time 0)}
 
-  \item{final.rate}{final interest rate}
+  \item{rates}{numeric vector of rates for each time (first
+  element is current rate)}
 
-  \item{period}{period in years over which the rate will
-  change}
-
-  \item{extend.period}{after the period has ended keep at
-  the final rate for this long}
+  \item{last.time}{extent the curve upto the this time}
 }
 \value{
-  A data frame with elements \item{month}{time in months}
+  A data frame with elements \item{month}{time in months.
+  Starts at month = 1, for the rate in the first month}
   \item{rate}{interest rate that month}
 }
 \description{
-  This function predicts the flexible interest rates for a
+  This function defines the flexible interest rates for a
   given period.
 }
 \examples{
-flex.rate(current.rate = 1, final.rate = 5, period = 10)
+flex.rate(times = c(0, 3, 6, 10), rates = c(1, 2, 2.5, 5), last.time = 12)
 }
 
