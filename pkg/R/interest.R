@@ -81,31 +81,35 @@ flex.rate <- function(
 fix.rate <- function(
   start.time = 0,   # The time in years when the fixed rate mortgage will start
   period = 5,     # The fixed period for the mortgage
-  current.fix.rates = NULL,   # vector of length n giving the current fixed rate mortges for a fixed period of 1 to n years
-  flex.rate = NULL   # Object from \code{\link{flex.rate}} giving the flexible rates. The period of this must be at least as long as \code{start.time}. If NULL then the current fix.rate is returned.
+  current.fix.rates,   # vector of length n giving the current fixed mortgage rates for a fixed period of 1 to n years. period must be less than or equal to n.
+  flex.rate  # Object from \code{\link{flex.rate}} giving the flexible rates. The period of this must be at least as long as \code{start.time}. If NULL then the current fix.rate is returned.
 ){
   
   # Check that flex.rate is long enough.
   start.time.month <- floor(start.time * 12)+1
   
-  if(is.null(flex.rate)){
-    flex.rate <- data.frame(month = 1:start.time.month, rate = c(1,1))
-  } 
+#   if(is.null(flex.rate)){
+#     flex.rate <- data.frame(month = 1:start.time.month, rate = c(1,1))
+#   } 
   
-  if(start.time.month > max(flex.rate$month) ) stop(paste("start.time in months is ", start.time.month, " but it must be less than or equal to the maximum time in flex.time (", max(flex.rate$month), ")", sep = ""))
+  # Must have flex rate predicted for the start.time
+  if(start.time > max(flex.rate$month/12) ) stop(paste("start.time = ", start.time, " years, but it must be less than or equal to the maximum month in flex.time (", max(flex.rate$month), " months)", sep = ""))
   
-  if(is.null(current.fix.rates)){
-    current.fix.rates <- c("1" = 0.980,
-                           "2" = 0.960,
-                           "3" = 1.020,
-                           "4" = 1.150,
-                           "5" = 1.300,
-                           "6" = 1.460,
-                           "7" = 1.620,
-                           "8" = 1.780,
-                           "9" = 1.920,
-                           "10" = 2.060)
-  }
+  # period must be less than or equal to the length of current.fix.rates
+  if(period > length(current.fix.rates) ) stop(paste("period = ", period, " years, but it must be less than or equal to the length of current.fix.rates (", length(current.fix.rates), ")", sep = ""))
+  
+#   if(is.null(current.fix.rates)){
+#     current.fix.rates <- c("1" = 0.980,
+#                            "2" = 0.960,
+#                            "3" = 1.020,
+#                            "4" = 1.150,
+#                            "5" = 1.300,
+#                            "6" = 1.460,
+#                            "7" = 1.620,
+#                            "8" = 1.780,
+#                            "9" = 1.920,
+#                            "10" = 2.060)
+#   }
   
   
   # difference between current.fix.rates to flex.rate for month 1
