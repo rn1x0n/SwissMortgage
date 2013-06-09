@@ -2,8 +2,8 @@
 \alias{fix.rate}
 \title{Find the fixed interest rates over given future period}
 \usage{
-  fix.rate(start.time = 0, period = 5,
-    current.fix.rates = NULL, flex.rate = NULL)
+  fix.rate(start.time = 0, period = 5, current.fix.rates,
+    flex.rate)
 }
 \arguments{
   \item{start.time}{the time in years when the fixed rate

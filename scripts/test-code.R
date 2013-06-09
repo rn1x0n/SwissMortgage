@@ -30,6 +30,7 @@ ggplot(flexRate, aes(x = month, y = rate)) + geom_line()
 
 currentFixRates <- current.fix.rates <- c(0.980, 0.960, 1.020, 1.150, 1.300, 1.460, 1.620, 1.780, 1.920, 2.060)
 fix.rate(start.time = 0, period = 5, current.fix.rates = currentFixRates, flex.rate = flexRate)
+fix.rate(start.time = 0, period = 1:10, current.fix.rates = currentFixRates, flex.rate = flexRate)
 fix.rate(start.time = 15, period = 5, current.fix.rates = currentFixRates, flex.rate = flexRate)
 fix.rate(start.time = 0, period = 15, current.fix.rates = currentFixRates, flex.rate = flexRate)
 

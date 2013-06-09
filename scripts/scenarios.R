@@ -18,7 +18,9 @@ current.rate <- 1   # Current interest rate
 period.current <- 1 # Period the current rate will stay as it is
 final.rate <- 5     # Final interest rate
 period <- 10    # Period in years over which the rate will change 
-extend.period <- 50 # After the period has ended keep at the final rate for this long
+last.time <- 20 # After the period has ended keep at the final rate upto this time
+times <- c(0, period.current, period) # times for LIBOR predictions
+rates <- c(current.rate, current.rate, final.rate)  # rates ar these times
 
 #' ## Total costs
 
@@ -85,17 +87,16 @@ ggplot(plotdata, aes(x = year, y = rate)) +
     geom_point(size = 1.5) +
     xlab("Fixed rate period (Year)") + ylab("Interest rate (%)")
 
-#' ### Plot of flexible rates interest rates over time  
+#' ### Plot of LIBOR rates interest rates over time  
 #+ echo = FALSE, fig.width = 7, fig.height = 4
-  plotdata <- flexRate <- flex.rate(current.rate = current.rate,
-                        period.current = period.current,
-              final.rate = final.rate, 
-              period = period, 
-              extend.period = extend.period) 
-
+  plotdata <- flexRate <- flex.rate(times = times,
+                        rates = rates,
+                                    last.time = last.time
+  )
+            
   plotdata$Year <- plotdata$month/12
   
-ggplot(subset(plotdata, subset = Year <= period.current + period), aes(x = Year, y = rate)) +
+ggplot(subset(plotdata, subset = Year <= max(times)), aes(x = Year, y = rate)) +
     geom_line(size = 1.5) +
     ylab("Interest rate (%)")
 

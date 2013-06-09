@@ -93,10 +93,10 @@ fix.rate <- function(
 #   } 
   
   # Must have flex rate predicted for the start.time
-  if(start.time > max(flex.rate$month/12) ) stop(paste("start.time = ", start.time, " years, but it must be less than or equal to the maximum month in flex.time (", max(flex.rate$month), " months)", sep = ""))
+  if(start.time > max(flex.rate$month/12) ) stop(paste("start.time = ", start.time, " years (", start.time*12  ," months), but it must be less than or equal to the maximum month in flex.time (", max(flex.rate$month), " months)", sep = ""))
   
   # period must be less than or equal to the length of current.fix.rates
-  if(period > length(current.fix.rates) ) stop(paste("period = ", period, " years, but it must be less than or equal to the length of current.fix.rates (", length(current.fix.rates), ")", sep = ""))
+  if(max(period) > length(current.fix.rates) ) stop(paste("maximum value of period = ", max(period), " years, but it must be less than or equal to the length of current.fix.rates (", length(current.fix.rates), ")", sep = ""))
   
 #   if(is.null(current.fix.rates)){
 #     current.fix.rates <- c("1" = 0.980,
