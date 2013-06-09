@@ -2,7 +2,7 @@
 \alias{flex.rate}
 \title{Find the flexible interest rates over given future period}
 \usage{
-  flex.rate(times, rates, last.time = 50)
+  flex.rate(times, rates, last.time = max(times))
 }
 \arguments{
   \item{times}{numeric vector of times in years (starts at

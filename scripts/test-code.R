@@ -1,14 +1,10 @@
 # TEST CODE
 
 source("_setup.R")
-
 runApp("pkg/inst/shiny")
 
 
 #####################################################################
-# Function to include in library to start a web server
-# shiny::runApp(system.file('shiny', package='SwissMortgage'))
-
 # Putting on web
 # http://glimmer.rstudio.com:8787/
 # Git pull the latest version to project SwissMortgage

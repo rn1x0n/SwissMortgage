@@ -12,3 +12,4 @@ Depends:
 License: GPL-2
 Collate:
     'interest.R'
+VignetteBuilder: knitr

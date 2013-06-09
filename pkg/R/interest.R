@@ -1,5 +1,20 @@
 # FUNCITONS FOR FINDING INTEREST PAYMENTS
 
+#' Run Shiny application
+#'
+#' Runs a Swiss Mortgage Calculator Shiny application. This function normally does not return; 
+#' interrupt R to stop the application (usually by pressing Ctrl+C or Esc).
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' shiny.app()
+#' }
+shiny.app <- function(){
+  shiny::runApp(system.file('shiny', package='SwissMortgage'))
+}
+
+
 #####################################################################
 # PAYMENTS
 
@@ -21,14 +36,19 @@
 flex.rate <- function(
   times,     
   rates,     
-  last.time = 50  
+  last.time = max(times)  
 ){
   
   # Data checks
   # times and rates are the same length
-  if(length(times) != length(rates)) stop("Times and rates must be the same length")
+  if(length(times) != length(rates)) stop("times and rates must be the same length")
   # first element of times much be zero
   if(times[1] != 0) stop("First element of times must = 0")
+  # times must all be unique
+  if(length(unique(times)) != length(times)) stop("times must all be different")
+  # Order times and rates
+  rates <- rates[order(times)]
+  times <- sort(times)
   
   # Convert years to months
   months <- times * 12
