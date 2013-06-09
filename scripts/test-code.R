@@ -13,7 +13,7 @@ runApp("pkg/inst/shiny")
 # http://glimmer.rstudio.com:8787/
 # Git pull the latest version to project SwissMortgage
 # Copy server and ui to ShinyApps
-system("cp /home/m1x0n/Projects/SwissMortgage/SwissMortgage/inst/shiny/*.* /home/m1x0n/ShinyApps/SwissMortgage/", intern = TRUE)
+system("cp /home/m1x0n/Projects/SwissMortgage/pkg/inst/shiny/*.* /home/m1x0n/ShinyApps/SwissMortgage/", intern = TRUE)
 
 # External link
 # http://glimmer.rstudio.com/m1x0n/SwissMortgage
