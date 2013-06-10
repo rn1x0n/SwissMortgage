@@ -8,6 +8,8 @@ step.mortgage <- 25000
 max.period <- 10
 value.period <- 5
 step.period <- 1
+cellpadding <- "0"
+cellspacing <- "6"
 
 shinyUI(pageWithSidebar(
   
@@ -26,8 +28,13 @@ shinyUI(pageWithSidebar(
     helpText("Only mortgage 1 can be amortized"),
     textInput("name1", "Name of mortgage:", "Amortization"),   
     
-    checkboxInput("fixRate1a", "Fixed rate", TRUE),
-    checkboxInput("interestOnly1a", "Interest only", FALSE),
+    tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing,
+               tags$tr(
+                 tags$td(checkboxInput("fixRate1a", "Fixed rate ", TRUE)),
+                 tags$td(checkboxInput("interestOnly1a", "Interest only", FALSE))
+               )
+    ),
+    
     sliderInput("debt1a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
     sliderInput("period1a", "Period (years) for mortgage:", min = 0, max = max.period, value = 10, step = 1),
     conditionalPanel(
@@ -35,25 +42,40 @@ shinyUI(pageWithSidebar(
       sliderInput("amortizationPeriod1a", "Amortization period (years) for mortgage:", min = 10, max = 25, value = 20, step = 1)  
     ),
     
-    checkboxInput("renew1b", "Renew mortgage", FALSE),
+    # Renew?
+    tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+      tags$td(checkboxInput("renew1b", "Renew mortgage ", FALSE)),   
+    
+      tags$td(conditionalPanel(
+        condition = "input.renew1b == true",
+        
+        tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+          tags$td(checkboxInput("fixRate1b", "Fixed rate ", TRUE)),
+          
+          tags$td(conditionalPanel(
+            condition = "input.interestOnly1a == true",
+            checkboxInput("changeDebt1b", "Change debt", FALSE) 
+          ))
+          
+        )) # end of inner table
+      
+        )) # end of renew condition panel cell
+      
+    )), # end of outer table
+       
     conditionalPanel(
       condition = "input.renew1b == true",
-      checkboxInput("fixRate1b", "Fixed rate", TRUE),
-      
-      conditionalPanel(
-        condition = "input.interestOnly1a == false",
-       helpText("Debt can't be changed for an amortized mortgage")
-      ),
-       
-       conditionalPanel(
-        condition = "input.interestOnly1a == true",
-        checkboxInput("changeDebt1b", "Change debt", FALSE), 
-        conditionalPanel(
-          condition = "input.changeDebt1b == true",
-          sliderInput("debt1b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
-        )
-        
-         ),
+         
+    conditionalPanel(
+      condition = "input.changeDebt1b == true",
+      sliderInput("debt1b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
+    ),
+    
+    conditionalPanel(
+      condition = "input.interestOnly1a == false",
+      helpText("Debt can't be changed for an amortized mortgage")
+    ),
+    
       sliderInput("period1b", "Period (years) for mortgage:", min = 0, max = max.period, value = 10, step = 1)
     ),
     
@@ -68,12 +90,23 @@ shinyUI(pageWithSidebar(
       sliderInput("debt2a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
       sliderInput("period2a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step =  step.period),
       
-      checkboxInput("renew2b", "Renew mortgage", FALSE),   
+      # Renew?
+      tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+        tags$td(checkboxInput("renew2b", "Renew mortgage ", FALSE)),   
+        
+        tags$td(conditionalPanel(
+          condition = "input.renew2b == true",
+          tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+            tags$td(checkboxInput("fixRate2b", "Fixed rate ", TRUE)),
+                    tags$td(checkboxInput("changeDebt2b", "Change debt", FALSE))
+          )) # end of inner table
+        )) # end of renew condition panel cell
+      
+        )), # end of outer table
+      
       conditionalPanel(
         condition = "input.renew2b == true",
-        checkboxInput("fixRate2b", "Fixed rate", TRUE),
         
-        checkboxInput("changeDebt2b", "Change debt", FALSE), 
         conditionalPanel(
           condition = "input.changeDebt2b == true",
           sliderInput("debt2b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
@@ -81,7 +114,9 @@ shinyUI(pageWithSidebar(
         
         sliderInput("period2b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
       )
+      
     ),
+    
     
     
     # Third mortgage
@@ -93,12 +128,24 @@ shinyUI(pageWithSidebar(
       checkboxInput("fixRate3a", "Fixed rate", TRUE),
       sliderInput("debt3a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
       sliderInput("period3a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = 1),
-      checkboxInput("renew3b", "Renew mortgage", FALSE),   
+      
+      # Renew?
+      tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+        tags$td(checkboxInput("renew3b", "Renew mortgage ", FALSE)),   
+        
+        tags$td(conditionalPanel(
+          condition = "input.renew3b == true",
+          tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+            tags$td(checkboxInput("fixRate3b", "Fixed rate ", TRUE)),
+            tags$td(checkboxInput("changeDebt3b", "Change debt", FALSE))
+          )) # end of inner table
+        )) # end of renew condition panel cell
+        
+      )), # end of outer table
+      
       conditionalPanel(
         condition = "input.renew3b == true",
-        checkboxInput("fixRate3b", "Fixed rate", TRUE),
         
-        checkboxInput("changeDebt3b", "Change debt", FALSE), 
         conditionalPanel(
           condition = "input.changeDebt3b == true",
           sliderInput("debt3b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
@@ -106,8 +153,8 @@ shinyUI(pageWithSidebar(
         
         sliderInput("period3b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
       )
+      
     ),
-    
     
     # Fourth mortgage
     conditionalPanel(
@@ -118,12 +165,24 @@ shinyUI(pageWithSidebar(
       checkboxInput("fixRate4a", "Fixed rate", TRUE),
       sliderInput("debt4a", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage),
       sliderInput("period4a", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = 1),
-      checkboxInput("renew4b", "Renew mortgage", FALSE),   
+      
+      # Renew?
+      tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+        tags$td(checkboxInput("renew4b", "Renew mortgage ", FALSE)),   
+        
+        tags$td(conditionalPanel(
+          condition = "input.renew4b == true",
+          tags$table(border="0", cellpadding=cellpadding, cellspacing=cellspacing, tags$tr(
+            tags$td(checkboxInput("fixRate4b", "Fixed rate ", TRUE)),
+            tags$td(checkboxInput("changeDebt4b", "Change debt", FALSE))
+          )) # end of inner table
+        )) # end of renew condition panel cell
+        
+      )), # end of outer table
+      
       conditionalPanel(
         condition = "input.renew4b == true",
-        checkboxInput("fixRate4b", "Fixed rate", TRUE),
         
-        checkboxInput("changeDebt4b", "Change debt", FALSE), 
         conditionalPanel(
           condition = "input.changeDebt4b == true",
           sliderInput("debt4b", "Amount for mortgage:", min = 0, max = max.mortgage, value = value.mortgage, step = step.mortgage)
@@ -131,9 +190,10 @@ shinyUI(pageWithSidebar(
         
         sliderInput("period4b", "Period (years) for mortgage:", min = 0, max = max.period, value = value.period, step = step.period)
       )
+      
     ),
     
-    
+ 
     # Graph options
     br(),
     h3("Graph options"),
@@ -142,11 +202,11 @@ shinyUI(pageWithSidebar(
     selectInput("yaxis", "What to plot on the y-axis:", choices = c("payment", "interest", "amortization"), selected = "payment"),
     helpText('"payments" plot the total monthy payment, this is the sum of the "interest" and the 
              "amortization" repayment.'),
-       
+    
     checkboxInput("ylim2Fix", "Fix upper limit on y-axis:", FALSE),
     conditionalPanel(
       condition = "input.ylim2Fix == true",
-    sliderInput("ylim2", "Upper limit for y-axis:", min = 0, max = 10000, value = 2000, step = 100)
+      sliderInput("ylim2", "Upper limit for y-axis:", min = 0, max = 10000, value = 2000, step = 100)
     ),
     
     
@@ -196,7 +256,7 @@ shinyUI(pageWithSidebar(
                #textOutput("debug"),
                #htmlOutput("summaryXtable"),
                htmlOutput("googleAnalytics")
-               ), 
+      ), 
       tabPanel("Interest rate assumptions",
                h4("Fixed interest rates for each period"),
                plotOutput("currentRatePlot"), 
