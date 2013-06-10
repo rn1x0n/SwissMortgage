@@ -57,21 +57,14 @@ shinyPlan <- list(
 ```
 
 
-## Add in the interest rates needed for the calculations
+## Perform the calculations
 
 ```r
-plan <- shinyPlan2plan(
+pay <- payments(
   shinyPlan = shinyPlan,
   currentFixRates = currentFixRates,
   flexRate = flexRate
   )
-```
-
-
-## Perform the calculations
-
-```r
-pay <- plan.pay(plan)
 ```
 
 
@@ -84,7 +77,7 @@ summaryPay(pay)
 
 
 <!-- html table generated in R 3.0.0 by xtable 1.7-1 package -->
-<!-- Sun Jun  9 20:54:42 2013 -->
+<!-- Mon Jun 10 20:23:50 2013 -->
 <TABLE border=1>
 <TR> <TH> Mortgage </TH> <TH> Sub mortgage </TH> <TH> Year start </TH> <TH> Year end </TH> <TH> Debt start </TH> <TH> Average rate </TH> <TH> Repayment type </TH> <TH> Interest </TH> <TH> Amortizaton </TH> <TH> Total </TH>  </TR>
   <TR> <TD> Amortization - 10 year fix </TD> <TD align="right"> 1 </TD> <TD align="right"> 0.0 </TD> <TD align="right"> 10.0 </TD> <TD align="right"> 100 000 </TD> <TD align="right"> 2.06 </TD> <TD> Amortization </TD> <TD align="right"> 16 175 </TD> <TD align="right"> 44 873 </TD> <TD align="right"> 61 048 </TD> </TR>
@@ -101,7 +94,7 @@ summaryPay(pay)
 ribbon.plot.pay(pay)
 ```
 
-![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8.png) 
 
 
 
@@ -109,5 +102,5 @@ ribbon.plot.pay(pay)
 line.plot.pay(pay)
 ```
 
-![plot of chunk unnamed-chunk-10](figure/unnamed-chunk-10.png) 
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9.png) 
 

@@ -55,6 +55,10 @@ plan <- shinyPlan2plan(
 
 pay <- plan.pay(plan)
 
+pay1 <- payments(shinyPlan = shinyPlan,
+                   currentFixRates = currentFixRates,
+                   flexRate = flexRate)
+
 summaryPay(pay, timeHorizon = 6, xtable = TRUE)
 ribbon.plot.pay(pay)
 line.plot.pay(pay)
